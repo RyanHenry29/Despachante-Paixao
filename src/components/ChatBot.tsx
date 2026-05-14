@@ -46,7 +46,7 @@ async function askAI(messages: Message[], ragContext: string): Promise<string> {
     // A flag dangerouslyAllowBrowser é necessária pois estamos rodando a Groq diretamente no Frontend
     const groq = new Groq({ apiKey, dangerouslyAllowBrowser: true });
 
-as     const systemPrompt = `Você é o Consultor Técnico Sênior do Despachante Paixão. Sua missão é fornecer respostas definitivas e profissionais sobre o DETRAN-SP.
+    const systemPrompt = `Você é o Consultor Técnico Sênior do Despachante Paixão. Sua missão é fornecer respostas definitivas e profissionais sobre o DETRAN-SP.
 
 ESTRUTURA OBRIGATÓRIA DA RESPOSTA:
 1. CONSULTA AO CALENDÁRIO: Se perguntarem sobre licenciamento, use o CALENDÁRIO 2026 presente na BASE DE CONHECIMENTO abaixo. Informe o mês exato conforme o final da placa.
