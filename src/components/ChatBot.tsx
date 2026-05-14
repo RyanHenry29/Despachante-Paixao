@@ -69,7 +69,7 @@ ${ragContext}`;
 
     const chatCompletion = await groq.chat.completions.create({
       messages: groqMessages as any,
-      model: "llama3-8b-8192",
+      model: "llama-3.1-8b-instant",
       temperature: 0.1, // Temperatura bem baixa para não ter "margem de erro" (evitar alucinação)
       max_tokens: 500,
     });
