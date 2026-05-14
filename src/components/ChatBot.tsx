@@ -46,10 +46,16 @@ async function askAI(messages: Message[], ragContext: string): Promise<string> {
     // A flag dangerouslyAllowBrowser é necessária pois estamos rodando a Groq diretamente no Frontend
     const groq = new Groq({ apiKey, dangerouslyAllowBrowser: true });
 
-    const systemPrompt = `Você é o assistente virtual de inteligência artificial do Despachante Paixão.
-Sua missão é ser prestativo, educado e responder de forma clara as dúvidas dos clientes.
-Responda de forma concisa e direta, usando emojis quando fizer sentido.
-Base de conhecimento da empresa (use isso para responder se relevante):
+    const systemPrompt = `Você é o assistente virtual de inteligência artificial do Despachante Paixão, localizado em Guarulhos.
+Sua missão é ser prestativo, educado e altamente profissional.
+
+REGRAS RÍGIDAS DE ATENDIMENTO (SEM MARGEM DE ERRO):
+1. Você não tem acesso em tempo real à internet. Portanto, NUNCA invente ou adivinhe valores exatos de taxas do DETRAN, multas, IPVA ou honorários de despachante que não estejam na Base de Conhecimento.
+2. Se o cliente perguntar sobre valores específicos ou orçamentos, você DEVE dar uma resposta geral (se houver na base) e SEMPRE terminar enviando OBRIGATORIAMENTE o link do nosso WhatsApp para ele confirmar: https://wa.me/5511953284566
+3. Responda apenas com informações verdadeiras contidas na Base de Conhecimento abaixo. Se não souber, diga: "Para essa informação exata, peço que chame nossa equipe no WhatsApp clicando aqui: https://wa.me/5511953284566"
+4. Seja conciso e direto. Use emojis quando fizer sentido.
+
+Base de conhecimento exclusiva da empresa:
 ${ragContext}`;
 
     // Converte as mensagens do formato do ChatBot para o formato da OpenAI/Groq
@@ -64,11 +70,11 @@ ${ragContext}`;
     const chatCompletion = await groq.chat.completions.create({
       messages: groqMessages as any,
       model: "llama3-8b-8192",
-      temperature: 0.5,
+      temperature: 0.1, // Temperatura bem baixa para não ter "margem de erro" (evitar alucinação)
       max_tokens: 500,
     });
 
-    return chatCompletion.choices[0]?.message?.content || "Desculpe, não consegui formular uma resposta.";
+    return chatCompletion.choices[0]?.message?.content || "Desculpe, não consegui formular uma resposta. Chame nossa equipe no WhatsApp (11) 95328-4566.";
   } catch (error) {
     console.error("Erro na Groq:", error);
     throw error;
@@ -156,11 +162,24 @@ export default function ChatBot() {
         </div>
 
         <div ref={msgsRef} className="flex-1 overflow-y-auto p-3 flex flex-col gap-2 bg-gray-50" style={{ minHeight: 260, maxHeight: 320 }}>
-          {messages.map((msg, i) => (
-            <div key={i} className={`max-w-[85%] px-3 py-2 rounded-xl text-sm leading-relaxed whitespace-pre-wrap ${msg.role === "assistant" ? "bg-white text-gray-800 self-start rounded-bl-sm shadow-sm" : "bg-[#25D366] text-white self-end rounded-br-sm"}`}>
-              {msg.content}
-            </div>
-          ))}
+          {messages.map((msg, i) => {
+            // Função para transformar URLs em links clicáveis
+            const renderTextWithLinks = (text: string) => {
+              const urlRegex = /(https?:\/\/[^\s]+)/g;
+              return text.split(urlRegex).map((part, index) => {
+                if (part.match(urlRegex)) {
+                  return <a key={index} href={part} target="_blank" rel="noopener noreferrer" className="underline font-bold text-blue-900 hover:text-blue-700">{part}</a>;
+                }
+                return <span key={index}>{part}</span>;
+              });
+            };
+
+            return (
+              <div key={i} className={`max-w-[85%] px-3 py-2 rounded-xl text-sm leading-relaxed whitespace-pre-wrap ${msg.role === "assistant" ? "bg-white text-gray-800 self-start rounded-bl-sm shadow-sm" : "bg-[#25D366] text-white self-end rounded-br-sm"}`}>
+                {renderTextWithLinks(msg.content)}
+              </div>
+            );
+          })}
           {loading && (
             <div className="max-w-[85%] px-3 py-2 rounded-xl rounded-bl-sm text-sm bg-white text-gray-400 self-start shadow-sm flex items-center gap-2">
               <span className="animate-pulse">Buscando informações</span>
