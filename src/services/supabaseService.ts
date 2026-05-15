@@ -2,58 +2,70 @@ import { supabase } from "@/integrations/supabase/client";
 import { INTENT_MAP } from "../constants";
 
 export async function searchKnowledge(query: string): Promise<string> {
-  const lower = query.toLowerCase();
+  const lowerQuery = query.toLowerCase();
   const results: string[] = [];
 
-  // 1. Detecta prefixos de title relevantes pela intenção
   const detectedPrefixes = new Set<string>();
-  for (const { keywords, titlePrefixes } of INTENT_MAP) {
-    if (keywords.some((kw) => lower.includes(kw))) {
-      titlePrefixes.forEach((p) => detectedPrefixes.add(p));
+  for (const entry of INTENT_MAP) {
+    if (entry.keywords.some(kw => lowerQuery.includes(kw))) {
+      entry.titlePrefixes.forEach(p => detectedPrefixes.add(p));
     }
   }
 
-  // 2. Busca por prefixo de title (otimizada)
   if (detectedPrefixes.size > 0) {
-    const prefixConditions = Array.from(detectedPrefixes).map(prefix => `title.like.${prefix}%`);
-    const { data } = await supabase
-      .from("knowledge_base" as never)
-      .select("content")
-      .or(prefixConditions.join(', '))
-      .limit(4);
+    try {
+      const orCondition = Array.from(detectedPrefixes)
+        .map(p => `title.like.${p}%`)
+        .join(",");
 
-    if (data?.length) {
-      (data as { content: string }[]).forEach((d) => {
-        if (!results.includes(d.content)) results.push(d.content);
-      });
+      // CORREÇÃO: O .limit() deve vir antes ou a estrutura deve ser linear
+      const { data, error } = await supabase
+        .from("knowledge_base" as never)
+        .select("content")
+        .or(orCondition)
+        .limit(5);
+
+      if (!error && data) {
+        data.forEach((item: any) => {
+          if (!results.includes(item.content)) {
+            results.push(item.content);
+          }
+        });
+      }
+    } catch (err) {
+      console.warn("Falha na busca por prefixo:", err);
     }
   }
 
-  // 3. Full-text search como complemento
   try {
-    const searchQuery = query
-      .replace(/[^a-záéíóúãõâêôçàüA-Z0-9 ]/g, " ")
+    const ftsQuery = query
+      .replace(/[^a-zA-Z0-9áéíóúãõâêôç ]/g, " ")
       .trim()
       .split(/\s+/)
-      .filter((w) => w.length > 3)
+      .filter(word => word.length > 3)
       .slice(0, 5)
       .join(" & ");
 
-    if (searchQuery) {
-      const { data } = await supabase
+    if (ftsQuery) {
+      const { data, error } = await supabase
         .from("knowledge_base" as never)
         .select("content")
-        .textSearch("content", searchQuery, { type: "plain", config: "portuguese" })
+        .textSearch("content", ftsQuery, { 
+          type: "plain", 
+          config: "portuguese" 
+        })
         .limit(3);
 
-      if (data?.length) {
-        (data as { content: string }[]).forEach((d) => {
-          if (!results.includes(d.content)) results.push(d.content);
+      if (!error && data) {
+        data.forEach((item: any) => {
+          if (!results.includes(item.content)) {
+            results.push(item.content);
+          }
         });
       }
     }
-  } catch {
-    // full-text falhou, segue só com prefixo
+  } catch (err) {
+    console.warn("Falha na busca Full-Text:", err);
   }
 
   return results.slice(0, 6).join("\n\n---\n\n");
