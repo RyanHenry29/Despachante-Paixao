@@ -50,7 +50,7 @@ export async function searchKnowledge(query: string): Promise<string> {
         (data as { content: string }[]).forEach((d) => {
           if (!results.includes(d.content)) results.push(d.content);
         });
-      });
+      };
     }
   } catch {
     // full-text falhou, segue só com prefixo
