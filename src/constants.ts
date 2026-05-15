@@ -10,7 +10,7 @@ export const SUGGESTIONS = [
   "Documentos para transferência?",
   "Calendário de licenciamento SP 2026",
   "Como recorrer de uma multa?",
-  "O que é Laudo CSV?",
+  "O que é Laudo de Vistoria (ECV)?",
   "Transferência com financiamento?",
   "Como emplacar veículo novo?",
 ];
@@ -41,8 +41,12 @@ export const INTENT_MAP: IntentMapEntry[] = [
     titlePrefixes: ["multas"],
   },
   {
-    keywords: ["vistoria", "laudo", "csv", "cautelar", "ecv", "chassi", "motor"],
+    keywords: ["vistoria", "laudo", "ecv", "chassi", "motor", "transferência"],
     titlePrefixes: ["vistoria"],
+  },
+  {
+    keywords: ["csv", "gnv", "blindagem", "alteração", "modificação", "segurança"],
+    titlePrefixes: ["csv"],
   },
   {
     keywords: ["ipva", "imposto veículo", "isenção ipva"],
@@ -86,13 +90,20 @@ NÃO invente documentos, prazos, taxas, nomes de formulários ou etapas que não
 Se a informação não estiver na base, diga: "Não tenho essa informação disponível. Para mais detalhes, fale com a gente pelo WhatsApp: https://wa.me/${WHATSAPP_NUMBER}"
 
 ════════════════════════════════
+GLOSSÁRIO TÉCNICO OBRIGATÓRIO (NÃO CONFUNDA!)
+════════════════════════════════
+1. LAUDO DE VISTORIA (ECV): Emitido por uma Empresa Credenciada de Vistoria. É OBRIGATÓRIO para transferência de propriedade.
+2. CSV (Certificado de Segurança Veicular): Emitido após MODIFICAÇÕES no veículo (ex: GNV, Blindagem, Alteração de Suspensão). NÃO é o laudo de transferência comum.
+3. LAUDO CAUTELAR: Opcional, usado para compra e venda (histórico do carro). NÃO serve para transferência no DETRAN.
+
+════════════════════════════════
 DOCUMENTOS PARA TRANSFERÊNCIA — lista fechada, não acrescente nada
 ════════════════════════════════
 Os únicos documentos obrigatórios para transferência de veículo usado são:
 1. CRV assinado pelo vendedor com firma reconhecida, OU ATPV-e (digital, não precisa de firma)
 2. RG e CPF do comprador e vendedor (CNH do comprador substitui o RG)
 3. Comprovante de residência atualizado (últimos 90 dias) do comprador
-4. Laudo CSV emitido por ECV credenciada pelo DETRAN-SP (OBRIGATÓRIO)
+4. Laudo de Vistoria emitido por ECV credenciada pelo DETRAN-SP (OBRIGATÓRIO)
 CRLV NÃO é exigido para transferência. Recibo de entrega NÃO é documento obrigatório.
 
 ════════════════════════════════
@@ -100,7 +111,7 @@ REGRAS DE RESPOSTA
 ════════════════════════════════
 1. Respostas CURTAS e DIRETAS. Máximo 5 linhas para dúvidas simples. Use lista apenas ao listar documentos ou etapas.
 2. CALENDÁRIO LICENCIAMENTO SP 2026: Finais 1-2→Julho | 3-4→Agosto | 5-6→Setembro | 7-8→Outubro | 9→Novembro | 0→Dezembro (último dia útil de cada mês).
-3. Laudo CSV (ECV) = OBRIGATÓRIO para transferência. Laudo Cautelar = OPCIONAL, NÃO serve para transferência.
+3. VISTORIA: Use sempre o termo "Laudo de Vistoria (ECV)" para transferência. Use "CSV" apenas para veículos modificados (GNV/Blindagem).
 
 4. TABELA DE MULTAS 2026 (VALORES BASE):
    - Leve: R$ 88,38 (3 pontos)
