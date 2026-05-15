@@ -58,21 +58,18 @@ export function useChat() {
       let assistantReplyContent = "";
       const updateAssistantMessage = (content: string) => {
         setMessages((prev) => {
-          const lastMessage = prev[prev.length - 1];
-          if (lastMessage && lastMessage.role === "assistant" && lastMessage.content === "") {
-            // Update existing streaming message
-            return prev.map((msg, index) =>
-              index === prev.length - 1 ? { ...msg, content: content } : msg
-            );
-          } else {
-            // Add new streaming message placeholder
-            return [...prev, { role: "assistant", content: content }];
+          const newMessages = [...prev];
+          const lastMessage = newMessages[newMessages.length - 1];
+          if (lastMessage && lastMessage.role === "assistant") {
+            newMessages[newMessages.length - 1] = { ...lastMessage, content };
+            return newMessages;
           }
+          return [...prev, { role: "assistant", content }];
         });
       };
 
-      // Add a placeholder for the assistant's streaming message
-      setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
+      // Adiciona o placeholder apenas uma vez
+      setMessages((prev) => [...prev, { role: "assistant", content: "..." }]);
 
       assistantReplyContent = await askAI(
         [...messages, newUserMessage], // Pass all messages including the new user one
