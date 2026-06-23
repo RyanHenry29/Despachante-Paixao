@@ -1,4 +1,4 @@
-import { MapPin, Phone, Clock, MessageCircle, Monitor, Users, Instagram } from "lucide-react";
+import { MapPin, Phone, Clock, MessageCircle, Monitor, Users, Instagram, Mail } from "lucide-react";
 import logo from "@/assets/logo-despachante-paixao.png";
 
 const Footer = () => {
@@ -94,7 +94,7 @@ const Footer = () => {
                 </div>
               </li>
               <li className="flex items-start gap-3">
-                <span className="text-accent text-lg leading-none mt-0.5" aria-hidden="true">✉</span>
+                <Mail className="w-5 h-5 text-accent mt-0.5" />
                 <div>
                   <a 
                     href="mailto:despachantepaixao@gmail.com"
