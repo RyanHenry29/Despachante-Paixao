@@ -1,11 +1,11 @@
-import { MapPin, Phone, Mail, Clock, MessageCircle, Monitor, Users, Instagram } from "lucide-react";
+import { MapPin, Phone, Clock, MessageCircle, Monitor, Users, Instagram } from "lucide-react";
 import logo from "@/assets/logo-despachante-paixao.png";
 
 const Footer = () => {
   return (
     <footer className="bg-primary text-white">
       {/* Main Footer */}
-      <div className="container-custom py-16">
+      <div className="container-custom py-[clamp(2.5rem,4vw,4rem)]">
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-12">
           {/* Brand Column */}
           <div className="lg:col-span-1">
@@ -14,10 +14,9 @@ const Footer = () => {
               alt="Despachante Paixão" 
               className="h-20 mb-4"
             />
-            <p className="text-white/60 mb-6 leading-relaxed">
-              Chega de complicação com burocracias! Cuidamos de tudo para você: 
-              agendamentos, documentos, transferências e muito mais.
-            </p>
+              <p className="text-white/60 mb-6 leading-relaxed text-[clamp(0.75rem,0.95vw,0.875rem)]">
+                Realizamos serviços de documentação veicular junto ao Detran com agilidade, segurança e sem burocracia. Atendimento presencial em Guarulhos e remoto para todo o Brasil.
+              </p>
             <div className="flex items-center gap-2 bg-accent/20 text-accent px-4 py-2 rounded-lg w-fit">
               <Users className="w-5 h-5" />
               <span className="font-medium text-sm">Presencial e Online</span>
@@ -26,11 +25,11 @@ const Footer = () => {
 
           {/* Institutional Column */}
           <div>
-            <h4 className="text-lg font-semibold text-white mb-6">Institucional</h4>
+            <h4 className="text-[clamp(0.875rem,1.2vw,1.125rem)] font-semibold text-white mb-6">Institucional</h4>
             <ul className="space-y-3">
               {[
                 { label: "Sobre Nós", href: "#" },
-                { label: "Política de Privacidade", href: "#" },
+                { label: "Política de Privacidade", href: "/privacidade" },
                 { label: "Termos de Uso", href: "#" },
                 { label: "FAQ - Perguntas Frequentes", href: "#" },
               ].map((link) => (
@@ -45,7 +44,7 @@ const Footer = () => {
 
           {/* Working Hours Column */}
           <div>
-            <h4 className="text-lg font-semibold text-white mb-6">Horário de Atendimento</h4>
+            <h4 className="text-[clamp(0.875rem,1.2vw,1.125rem)] font-semibold text-white mb-6">Horário de Atendimento</h4>
             <ul className="space-y-4">
               <li className="flex items-start gap-3">
                 <Clock className="w-5 h-5 text-accent mt-0.5 flex-shrink-0" />
@@ -78,7 +77,7 @@ const Footer = () => {
 
           {/* Contact Column */}
           <div>
-            <h4 className="text-lg font-semibold text-white mb-6">Contato</h4>
+            <h4 className="text-[clamp(0.875rem,1.2vw,1.125rem)] font-semibold text-white mb-6">Contato</h4>
             <ul className="space-y-4">
               <li className="flex items-start gap-3">
                 <Phone className="w-5 h-5 text-accent mt-0.5" />
@@ -95,7 +94,7 @@ const Footer = () => {
                 </div>
               </li>
               <li className="flex items-start gap-3">
-                <Mail className="w-5 h-5 text-accent mt-0.5" />
+                <span className="text-accent text-lg leading-none mt-0.5" aria-hidden="true">✉</span>
                 <div>
                   <a 
                     href="mailto:despachantepaixao@gmail.com"
@@ -106,9 +105,16 @@ const Footer = () => {
                 </div>
               </li>
               <li className="flex items-start gap-3">
-                <MapPin className="w-5 h-5 text-accent mt-0.5" />
+                <MapPin className="w-5 h-5 text-accent mt-0.5 shrink-0" />
                 <div>
-                  <p className="text-white">R. Geraldo Augusto, 106</p>
+                  <a
+                    href="https://www.google.com/maps/search/?api=1&query=R.+Geraldo+Augusto,+106,+Guarulhos,+SP"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-white hover:text-accent transition-colors"
+                  >
+                    R. Geraldo Augusto, 106
+                  </a>
                   <p className="text-white/60 text-sm">Jardim Pte. Alta I - Guarulhos/SP</p>
                 </div>
               </li>

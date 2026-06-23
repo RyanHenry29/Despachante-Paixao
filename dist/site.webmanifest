@@ -1,0 +1,18 @@
+{
+  "name": "Despachante Paixão — Chega de Burocracia",
+  "short_name": "Desp. Paixão",
+  "description": "Despachante Paixão: Transferência, licenciamento, consulta de débitos e documentação veicular com rapidez e segurança em Guarulhos-SP.",
+  "start_url": "/",
+  "scope": "/",
+  "categories": ["automotive", "services"],
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#0B3B3C",
+  "background_color": "#0B3B3C",
+  "display": "standalone"
+}

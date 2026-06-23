@@ -19,56 +19,56 @@ const services = [
   {
     id: "transferencia",
     title: "Transferência de Veículo",
-    description: "Fazemos a transferência de propriedade e cuidamos de toda a burocracia do Detran.",
+    description: "Cuidamos de toda a documentação de compra e venda, com assinatura digital e registro no Detran.",
     icon: Car,
     popular: true,
   },
   {
     id: "licenciamento",
     title: "Licenciamento Anual",
-    description: "Licenciamento rápido e seguro para você circular com seu veículo sem preocupações.",
+    description: "Emitimos seu licenciamento anual com código de segurança — sem filas e sem taxa extra.",
     icon: FileText,
     popular: true,
   },
   {
     id: "consulta-debitos",
     title: "Consulta de Débitos",
-    description: "Levantamento completo de IPVA, multas e restrições no sistema.",
+    description: "Verificamos IPVA atrasado, multas vigentes, restrições administrativas e judiciais no sistema.",
     icon: Search,
     popular: false,
   },
   {
     id: "crlv-e",
     title: "2ª Via do CRLV-e",
-    description: "Emissão de segunda via do documento digital de forma expressa.",
+    description: "Disponibilizamos o PDF do seu CRLV-e em minutos, direto da base oficial do Detran.",
     icon: RefreshCw,
     popular: false,
   },
   {
     id: "atpv-e",
     title: "Emissão de ATPV-e",
-    description: "Autorização para transferência de propriedade (Recibo de Compra e Venda).",
+    description: "Emissão do recibo digital de compra e venda (ATPV-e) para formalizar a transferência.",
     icon: CreditCard,
     popular: false,
   },
   {
     id: "primeiro-emplacamento",
     title: "Primeiro Emplacamento",
-    description: "Registro e emplacamento completo para veículos zero quilômetro.",
+    description: "Registro e emplacamento de veículos zero km com escolha de placa personalizada se desejar.",
     icon: Stamp,
     popular: false,
   },
   {
     id: "regularizacao",
     title: "Regularização de Bloqueios",
-    description: "Resolução de pendências, bloqueios judiciais e irregularidades.",
+    description: "Resolvemos bloqueios judiciais, multas, IPVA atrasado e restrições que impedem o licenciamento.",
     icon: AlertCircle,
     popular: false,
   },
   {
     id: "outros",
     title: "Outros Serviços",
-    description: "Renovação de CNH, recursos de multas e muito mais.",
+    description: "Renovação de CNH, defesa de multas, segunda via de documentos e demais serviços veiculares.",
     icon: MoreHorizontal,
     popular: false,
   },
@@ -95,16 +95,16 @@ const cardVariants = {
 
 const ServicesSection = ({ onSelectService }: ServicesSectionProps) => {
   return (
-    <section id="servicos" className="py-20 bg-gray-50 border-t border-gray-100">
+    <section id="servicos" className="py-[clamp(3rem,5vw,5rem)] bg-gray-50 border-t border-gray-100">
       <div className="container-custom">
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="text-3xl md:text-4xl font-extrabold text-[#0B1D3D] mb-4">
+        <div className="text-center max-w-3xl mx-auto mb-[clamp(2rem,3.5vw,4rem)]">
+          <h2 className="text-[clamp(1.5rem,3vw,2.5rem)] font-extrabold text-[#0B1D3D] mb-4">
             Serviços Especializados
           </h2>
           <div className="w-24 h-1 bg-blue-500 mx-auto mb-6 rounded-full"></div>
-          <p className="text-gray-600 text-lg">
-            Selecione o serviço que você precisa e conte com a nossa experiência para resolver tudo com agilidade e total segurança.
+          <p className="text-gray-600 text-[clamp(0.875rem,1.2vw,1.125rem)]">
+            Resolvemos a documentação do seu veículo sem complicação. Escolha o serviço abaixo e solicite seu orçamento.
           </p>
         </div>
 
@@ -114,7 +114,7 @@ const ServicesSection = ({ onSelectService }: ServicesSectionProps) => {
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true, margin: "-50px" }}
+          viewport={{ once: false, margin: "-50px" }}
         >
           {services.map((service) => {
             const Icon = service.icon;
@@ -135,15 +135,15 @@ const ServicesSection = ({ onSelectService }: ServicesSectionProps) => {
                   <Icon className="w-6 h-6 text-blue-600" />
                 </div>
                 
-                <h3 className="font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
+                <h3 className="font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors text-[clamp(0.875rem,1.1vw,1rem)]">
                   {service.title}
                 </h3>
                 
-                <p className="text-gray-600 text-sm mb-4 leading-relaxed">
+                <p className="text-gray-600 text-[clamp(0.75rem,0.95vw,0.875rem)] mb-4 leading-relaxed">
                   {service.description}
                 </p>
                 
-                <div className="flex items-center text-blue-600 text-sm font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="flex items-center text-blue-600 text-[clamp(0.75rem,0.9vw,0.875rem)] font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
                   Fazer Orçamento
                   <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
                 </div>

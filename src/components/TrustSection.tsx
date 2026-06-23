@@ -1,36 +1,36 @@
-import { Monitor, Lock, Clock, Award, MessageCircle, Users } from "lucide-react";
+import { Monitor, MessageCircle, FileText, Clock, RefreshCw, CheckCircle } from "lucide-react";
 import { motion } from "framer-motion";
 
 const trustItems = [
   {
-    icon: Monitor,
-    title: "Atendimento Digital",
-    description: "Faça tudo pelo WhatsApp sem precisar ir presencialmente ao Poupatempo.",
+    icon: MessageCircle,
+    title: "Atendimento sem intermediários",
+    description: "Seu processo é tratado diretamente pelo responsável pelo serviço, garantindo mais agilidade e comunicação clara.",
   },
   {
-    icon: Lock,
-    title: "Tradição e Confiança",
-    description: "Cuidamos dos seus documentos com total segurança e responsabilidade.",
+    icon: CheckCircle,
+    title: "Acompanhamento até a conclusão",
+    description: "Não entregamos apenas protocolos. Acompanhamos o andamento da solicitação até a finalização do processo.",
+  },
+  {
+    icon: FileText,
+    title: "Menos burocracia para você",
+    description: "Orientamos toda a documentação necessária e cuidamos dos procedimentos para evitar retrabalho e atrasos.",
   },
   {
     icon: Clock,
-    title: "Agilidade",
-    description: "Processos diretos com o sistema do Detran para liberar seu documento rápido.",
+    title: "Experiência prática desde 2020",
+    description: "Anos atuando na regularização documental de veículos para clientes de Guarulhos e região.",
   },
   {
-    icon: Award,
-    title: "Equipe Especializada",
-    description: "Nossos despachantes conhecem todos os atalhos para resolver qualquer B.O.",
+    icon: RefreshCw,
+    title: "Atualizações durante o processo",
+    description: "Você sabe exatamente em qual etapa está sua solicitação e o que ainda precisa ser feito.",
   },
   {
-    icon: MessageCircle,
-    title: "Suporte Real",
-    description: "Nada de robôs enrolando: você fala direto com quem resolve seu problema.",
-  },
-  {
-    icon: Users,
-    title: "Preço Justo",
-    description: "Orçamento claro, sem taxas surpresas no final do serviço.",
+    icon: Monitor,
+    title: "Atendimento remoto e presencial",
+    description: "Inicie seu processo pelo WhatsApp ou conte com atendimento presencial quando necessário.",
   },
 ];
 
@@ -53,15 +53,15 @@ const cardVariants = {
 
 const TrustSection = () => {
   return (
-    <section className="py-20 bg-[#0B1D3D] border-b border-blue-900">
+    <section id="diferenciais" className="py-[clamp(3rem,5vw,5rem)] bg-[#0B1D3D] border-b border-blue-900">
       <div className="container-custom">
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="text-3xl md:text-4xl font-extrabold text-white mb-4">
-            Por que escolher o Despachante Paixão?
+        <div className="text-center max-w-3xl mx-auto mb-[clamp(2rem,3.5vw,4rem)]">
+          <h2 className="text-[clamp(1.5rem,3vw,2.5rem)] font-extrabold text-white mb-4">
+            Por que confiar sua documentação ao Despachante Paixão?
           </h2>
           <div className="w-24 h-1 bg-blue-500 mx-auto mb-6 rounded-full"></div>
-          <p className="text-white/80 text-lg">
+          <p className="text-white/80 text-[clamp(0.875rem,1.2vw,1.125rem)]">
             Nossa reputação é construída com base na confiança, rapidez e no respeito ao cliente.
           </p>
         </div>
@@ -72,7 +72,7 @@ const TrustSection = () => {
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true, margin: "-50px" }}
+          viewport={{ once: false, margin: "-50px" }}
         >
           {trustItems.map((item, index) => {
             const Icon = item.icon;
@@ -85,38 +85,15 @@ const TrustSection = () => {
                 <div className="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center mb-4">
                   <Icon className="w-6 h-6 text-blue-400" />
                 </div>
-                <h3 className="text-xl font-bold text-white mb-2">
+                <h3 className="text-[clamp(1rem,1.5vw,1.25rem)] font-bold text-white mb-2">
                   {item.title}
                 </h3>
-                <p className="text-white/70 leading-relaxed text-sm">
+                <p className="text-white/70 leading-relaxed text-[clamp(0.75rem,0.95vw,0.875rem)]">
                   {item.description}
                 </p>
               </motion.div>
             );
           })}
-        </motion.div>
-
-        {/* Stats Bar */}
-        <motion.div 
-          className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 pt-12 border-t border-[#1A3668]"
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-        >
-          {[
-            { value: "90+", label: "Avaliações no Google" },
-            { value: "5.0", label: "Nota do Atendimento" },
-            { value: "100%", label: "Segurança" },
-            { value: "Rápido", label: "Tempo de Entrega" }
-          ].map((stat, index) => (
-            <motion.div key={index} className="text-center">
-              <p className="text-3xl md:text-4xl font-extrabold text-blue-400 mb-2">
-                {stat.value}
-              </p>
-              <p className="text-white/60 text-sm font-medium">{stat.label}</p>
-            </motion.div>
-          ))}
         </motion.div>
       </div>
     </section>

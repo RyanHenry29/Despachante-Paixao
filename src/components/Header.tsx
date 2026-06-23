@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-import { Menu, X, Phone } from "lucide-react";
-import logo from "@/assets/logo-despachante-paixao.png";
+import { Menu, X } from "lucide-react";
 
 interface HeaderProps {
   onScrollToForm: () => void;
@@ -23,7 +22,6 @@ const Header = ({ onScrollToForm }: HeaderProps) => {
     { label: "Início", href: "#" },
     { label: "Serviços", href: "#servicos" },
     { label: "Avaliações", href: "#avaliacoes" },
-    { label: "Contato", href: "#formulario" },
   ];
 
   return (
@@ -35,20 +33,9 @@ const Header = ({ onScrollToForm }: HeaderProps) => {
       }`}
     >
       <div className="container-custom">
-        <div className="flex items-center justify-between">
-          {/* Logo */}
-          <a href="#" className="flex items-center gap-2">
-            <img 
-              src={logo} 
-              alt="Despachante Paixão" 
-              className={`transition-all duration-300 ${
-                isScrolled ? 'h-12' : 'h-14 md:h-16'
-              }`}
-            />
-          </a>
-
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-8">
+        <div className="flex items-center md:justify-center justify-end">
+          {/* Desktop Navigation + CTA centered */}
+          <div className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => (
               <a
                 key={link.label}
@@ -60,19 +47,6 @@ const Header = ({ onScrollToForm }: HeaderProps) => {
                 {link.label}
               </a>
             ))}
-          </nav>
-
-          {/* CTA Button */}
-          <div className="hidden md:flex items-center gap-4">
-            <a
-              href="tel:+5511953284566"
-              className={`flex items-center gap-2 font-medium transition-colors ${
-                isScrolled ? "text-foreground/80" : "text-white/90"
-              }`}
-            >
-              <Phone className="w-4 h-4" />
-              (11) 95328-4566
-            </a>
             <button
               onClick={onScrollToForm}
               className="bg-accent text-accent-foreground px-6 py-2.5 rounded-lg font-semibold hover:bg-accent/90 transition-all shadow-lg hover:shadow-xl"
@@ -104,14 +78,7 @@ const Header = ({ onScrollToForm }: HeaderProps) => {
                   {link.label}
                 </a>
               ))}
-              <div className="pt-4 border-t border-border space-y-4">
-                <a
-                  href="tel:+5511953284566"
-                  className="flex items-center gap-2 text-foreground/80 font-medium"
-                >
-                  <Phone className="w-4 h-4" />
-                  (11) 95328-4566
-                </a>
+              <div className="pt-4 border-t border-border">
                 <button
                   onClick={() => {
                     onScrollToForm();

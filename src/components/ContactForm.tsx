@@ -23,11 +23,11 @@ const ContactForm = forwardRef<HTMLDivElement, ContactFormProps>(({ selectedServ
     name: "",
     message: "",
   });
+  const [privacyAccepted, setPrivacyAccepted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [showSummary, setShowSummary] = useState(false);
 
-  // Update service when prop changes
   if (selectedService && formData.service !== selectedService) {
     setFormData(prev => ({ ...prev, service: selectedService }));
   }
@@ -58,28 +58,24 @@ const ContactForm = forwardRef<HTMLDivElement, ContactFormProps>(({ selectedServ
   const confirmSubmit = () => {
     setIsSubmitting(true);
     
-    // Simulate API call
     setTimeout(() => {
       setIsSubmitting(false);
       setIsSubmitted(true);
       
-      // Prepare WhatsApp message - only include fields that were filled
       const serviceLabel = services.find(s => s.id === formData.service)?.label || formData.service;
       const messageParts = [
-        `Olá! Vim pelo site e gostaria de solicitar um serviço:\n`,
+        `Olá! Vim pelo site e gostaria de solicitar um orçamento:\n`,
         `*Serviço:* ${serviceLabel}`,
         `*Placa:* ${formData.plate}`,
         `*Nome:* ${formData.name}`,
       ];
       
-      // Only add optional fields if they have content
       if (formData.message.trim()) {
         messageParts.push(`*Mensagem:* ${formData.message}`);
       }
       
       const message = encodeURIComponent(messageParts.join('\n'));
       
-      // Open WhatsApp after a short delay
       setTimeout(() => {
         window.open(`https://wa.me/5511953284566?text=${message}`, "_blank");
       }, 1500);
@@ -106,6 +102,7 @@ const ContactForm = forwardRef<HTMLDivElement, ContactFormProps>(({ selectedServ
                 onClick={() => {
                   setIsSubmitted(false);
                   setShowSummary(false);
+                  setPrivacyAccepted(false);
                   setFormData({ service: "", plate: "", name: "", message: "" });
                 }}
                 className="text-accent font-medium hover:underline"
@@ -125,14 +122,11 @@ const ContactForm = forwardRef<HTMLDivElement, ContactFormProps>(({ selectedServ
         <div className="max-w-2xl mx-auto">
           {/* Section Header */}
           <div className="text-center mb-10">
-            <span className="inline-block bg-accent/10 text-accent font-medium px-4 py-2 rounded-full text-sm mb-4">
-              Solicite Agora
-            </span>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Preencha seus dados
+            <h2 className="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-foreground mb-4">
+              Solicite seu Orçamento
             </h2>
-            <p className="text-muted-foreground">
-              Informe os dados abaixo e nossa equipe entrará em contato rapidamente.
+            <p className="text-muted-foreground text-[clamp(0.75rem,0.95vw,0.875rem)]">
+               Preencha com seus dados e receba um orçamento personalizado sem compromisso.
             </p>
           </div>
 
@@ -218,19 +212,36 @@ const ContactForm = forwardRef<HTMLDivElement, ContactFormProps>(({ selectedServ
                   </div>
                 </div>
 
+                {/* Privacy Checkbox */}
+                <label className="flex items-start gap-3 cursor-pointer group">
+                  <input
+                    type="checkbox"
+                    checked={privacyAccepted}
+                    onChange={(e) => setPrivacyAccepted(e.target.checked)}
+                    className="mt-1 w-4 h-4 rounded border-border text-accent focus:ring-accent cursor-pointer"
+                  />
+                  <span className="text-xs text-muted-foreground group-hover:text-foreground transition-colors leading-relaxed">
+                    Li e aceito a{" "}
+                    <a href="/privacidade" target="_blank" className="text-accent hover:underline font-medium">
+                      Política de Privacidade
+                    </a>{" "}
+                    e autorizo o tratamento dos meus dados conforme a LGPD.
+                  </span>
+                </label>
+
                 {/* Submit Button */}
                 <button
                   type="submit"
-                  className="cta-primary w-full flex items-center justify-center gap-2"
+                  disabled={!privacyAccepted}
+                  className={`w-full flex items-center justify-center gap-2 font-bold py-4 px-8 rounded-lg text-lg transition-all ${
+                    privacyAccepted
+                      ? "bg-accent text-accent-foreground shadow-lg hover:shadow-xl hover:bg-accent/90 cursor-pointer"
+                      : "bg-muted text-muted-foreground cursor-not-allowed"
+                  }`}
                 >
                   Avançar para atendimento
                   <Send className="w-5 h-5" />
                 </button>
-
-                <p className="text-xs text-muted-foreground text-center">
-                  Ao enviar, você concorda com nossa{" "}
-                  <a href="#" className="text-accent hover:underline">Política de Privacidade</a>
-                </p>
               </form>
             ) : (
               /* Summary View */
@@ -256,7 +267,7 @@ const ContactForm = forwardRef<HTMLDivElement, ContactFormProps>(({ selectedServ
                   </div>
                 </div>
 
-                <div className="flex gap-4">
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                   <button
                     onClick={() => setShowSummary(false)}
                     className="flex-1 py-4 border border-border rounded-lg font-medium hover:bg-secondary transition-colors"
