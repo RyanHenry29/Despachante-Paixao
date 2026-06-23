@@ -18,7 +18,6 @@ export async function searchKnowledge(query: string): Promise<string> {
         .map(p => `title.like.${p}%`)
         .join(",");
 
-      // CORREÇÃO: O .limit() deve vir antes ou a estrutura deve ser linear
       const { data, error } = await supabase
         .from("knowledge_base" as never)
         .select("content")
@@ -33,7 +32,6 @@ export async function searchKnowledge(query: string): Promise<string> {
         });
       }
     } catch (err) {
-      console.warn("Falha na busca por prefixo:", err);
     }
   }
 
@@ -65,7 +63,6 @@ export async function searchKnowledge(query: string): Promise<string> {
       }
     }
   } catch (err) {
-    console.warn("Falha na busca Full-Text:", err);
   }
 
   return results.slice(0, 6).join("\n\n---\n\n");

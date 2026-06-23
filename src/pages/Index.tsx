@@ -3,10 +3,11 @@ import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
 import ServicesSection from "@/components/ServicesSection";
 import ContactForm from "@/components/ContactForm";
-import TestimonialsSection from "@/components/TestimonialsSection";
+import GoogleReviewsSection from "@/components/GoogleReviewsSection";
 import TrustSection from "@/components/TrustSection";
 import Footer from "@/components/Footer";
 import ChatBot from "@/components/ChatBot";
+import ScrollNavigation from "@/components/ScrollNavigation";
 
 const Index = () => {
   const formRef = useRef<HTMLDivElement>(null);
@@ -27,10 +28,11 @@ const Index = () => {
       <HeroSection onScrollToForm={scrollToForm} />
       <ServicesSection onSelectService={handleSelectService} />
       <ContactForm ref={formRef} selectedService={selectedService} />
-      <TestimonialsSection />
+      <GoogleReviewsSection />
       <TrustSection />
       <Footer />
       <ChatBot />
+      <ScrollNavigation />
     </div>
   );
 };

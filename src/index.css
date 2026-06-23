@@ -101,6 +101,8 @@
   body {
     @apply bg-background text-foreground antialiased;
     font-feature-settings: "rlig" 1, "calt" 1;
+    overflow-x: hidden;
+    overscroll-behavior-y: none;
   }
 
   html {
@@ -167,7 +169,7 @@
 
   /* Section padding */
   .section-padding {
-    @apply py-16 md:py-24;
+    padding-block: clamp(3rem, 5vw, 6rem);
   }
 
   /* Container max width */

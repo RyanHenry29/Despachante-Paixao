@@ -70,7 +70,6 @@ export function useChat() {
     const trimmedText = text.trim();
     if (!trimmedText || loading) return;
 
-    // Reset de estados para nova interação
     setShowSugs(false);
     setInput("");
     setUsedRag(false);
@@ -82,19 +81,15 @@ export function useChat() {
       timestamp: Date.now()
     };
 
-    // Atualiza mensagens com a pergunta do usuário
     setMessages((prev) => [...prev, newUserMessage]);
     setLoading(true);
 
     try {
-      // 1. Busca de Contexto (RAG) no Supabase
       const ragContext = await searchKnowledge(trimmedText);
       if (ragContext) setUsedRag(true);
 
-      // 2. Preparação para Streaming
       let currentAssistantContent = "";
-      
-      // Adiciona placeholder para a mensagem da IA
+
       setMessages((prev) => [...prev, { role: "assistant", content: "...", timestamp: Date.now() }]);
 
       const updateUI = (content: string) => {
@@ -109,18 +104,15 @@ export function useChat() {
         });
       };
 
-      // 3. Chamada para a IA (Groq) com Streaming
       const finalContent = await askAI(
         [...messages, newUserMessage], 
         ragContext, 
         updateUI
       );
 
-      // 4. Finalização da mensagem
       updateUI(finalContent);
 
     } catch (err: any) {
-      console.error("Erro crítico no fluxo do chat:", err);
       setError("Ocorreu um erro ao processar sua mensagem.");
       
       setMessages((prev) => [

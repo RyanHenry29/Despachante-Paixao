@@ -46,7 +46,6 @@ async function askAI(
     }
     return fullText.replace(/\*\*/g, "").replace(/\*/g, "").trim();
   } catch (error: any) {
-    console.error("Erro Groq:", error);
     if (error?.status === 429) {
       return `Aguarde um momento ou fale no WhatsApp: ${WHATSAPP_LINK}`;
     }
@@ -54,5 +53,4 @@ async function askAI(
   }
 }
 
-// Exportação explícita para evitar erro de build
 export { askAI };
