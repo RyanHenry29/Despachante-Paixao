@@ -8,7 +8,8 @@ import type {
 
 const API_BASE = "https://places.googleapis.com/v1";
 const CACHE_KEY = "despachante_google_reviews_cache";
-const CACHE_TTL = 24 * 60 * 60 * 1000;
+const CACHE_TTL = 30 * 60 * 1000;
+const PLACE_ID = "ChIJjf_y6uGJzpQRzJYssyNyLZg";
 const REQUEST_TIMEOUT = 10000;
 const MAX_RETRIES = 3;
 const INITIAL_RETRY_DELAY = 1000;
@@ -241,8 +242,7 @@ export const googleReviewsService = {
     structuredLog(LogEvent.CACHE_MISS);
 
     const apiKey = getApiKey();
-    const placeId = await searchPlaceId(apiKey);
-    const details = await fetchPlaceDetails(placeId, apiKey);
+    const details = await fetchPlaceDetails(PLACE_ID, apiKey);
     const parsed = parsePlaceDetails(details);
 
     setCache(parsed);
