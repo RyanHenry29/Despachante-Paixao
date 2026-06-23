@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useGoogleReviews } from "@/hooks/useGoogleReviews";
 import { Star, ExternalLink, Quote, ChevronLeft, ChevronRight } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -108,6 +108,7 @@ function EmptyState() {
 
 const GoogleReviewsSection = () => {
   const { reviews, rating, totalReviews, placeName, loading, error, observerRef, refetch } = useGoogleReviews();
+  const [selectedIndex, setSelectedIndex] = useState(0);
   const [emblaRef, emblaApi] = useEmblaCarousel({
     loop: true,
     align: "start",
@@ -118,6 +119,18 @@ const GoogleReviewsSection = () => {
 
   const scrollPrev = () => emblaApi?.scrollPrev();
   const scrollNext = () => emblaApi?.scrollNext();
+
+  const onSelect = useCallback(() => {
+    if (!emblaApi) return;
+    setSelectedIndex(emblaApi.selectedScrollSnap());
+  }, [emblaApi]);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    onSelect();
+    emblaApi.on("select", onSelect);
+    return () => { emblaApi.off("select", onSelect); };
+  }, [emblaApi, onSelect]);
 
   return (
     <section
@@ -209,12 +222,23 @@ const GoogleReviewsSection = () => {
             <p className="text-muted-foreground text-sm text-center max-w-md">
               Não foi possível carregar as avaliações no momento.
             </p>
-            <button
-              onClick={refetch}
-              className="mt-4 px-5 py-2 bg-primary text-primary-foreground text-sm rounded-lg hover:bg-primary/90 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-            >
-              Tentar novamente
-            </button>
+            <div className="flex items-center gap-3 mt-4">
+              <button
+                onClick={refetch}
+                className="px-5 py-2 bg-primary text-primary-foreground text-sm rounded-lg hover:bg-primary/90 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              >
+                Tentar novamente
+              </button>
+              <a
+                href="https://search.google.com/local/reviews?placeid=ChIJjf_y6uGJzpQRzJYssyNyLZg"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-5 py-2 border border-border text-foreground text-sm rounded-lg hover:bg-secondary transition-colors flex items-center gap-2"
+              >
+                Ver no Google
+                <ExternalLink className="w-3.5 h-3.5" />
+              </a>
+            </div>
           </motion.div>
         )}
 
@@ -291,21 +315,37 @@ const GoogleReviewsSection = () => {
               </div>
 
               {reviews.length > 0 && (
-                <div className="flex justify-center items-center gap-4 mt-8">
-                  <button
-                    onClick={scrollPrev}
-                    className="inline-flex items-center justify-center h-10 w-10 border border-border/60 bg-white dark:bg-card hover:bg-accent/10 hover:text-accent shadow-sm rounded-full transition-colors"
-                    aria-label="Avaliação anterior"
-                  >
-                    <ChevronLeft className="h-4 w-4" />
-                  </button>
-                  <button
-                    onClick={scrollNext}
-                    className="inline-flex items-center justify-center h-10 w-10 border border-border/60 bg-white dark:bg-card hover:bg-accent/10 hover:text-accent shadow-sm rounded-full transition-colors"
-                    aria-label="Próxima avaliação"
-                  >
-                    <ChevronRight className="h-4 w-4" />
-                  </button>
+                <div className="flex flex-col items-center gap-4 mt-8">
+                  <div className="hidden md:flex justify-center items-center gap-4">
+                    <button
+                      onClick={scrollPrev}
+                      className="inline-flex items-center justify-center h-10 w-10 border border-border/60 bg-white dark:bg-card hover:bg-accent/10 hover:text-accent shadow-sm rounded-full transition-colors"
+                      aria-label="Avaliação anterior"
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={scrollNext}
+                      className="inline-flex items-center justify-center h-10 w-10 border border-border/60 bg-white dark:bg-card hover:bg-accent/10 hover:text-accent shadow-sm rounded-full transition-colors"
+                      aria-label="Próxima avaliação"
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </button>
+                  </div>
+                  <div className="flex md:hidden justify-center items-center gap-2">
+                    {reviews.map((_, i) => (
+                      <button
+                        key={i}
+                        onClick={() => emblaApi?.scrollTo(i)}
+                        className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                          i === selectedIndex
+                            ? "bg-primary w-4"
+                            : "bg-muted-foreground/30 hover:bg-muted-foreground/50"
+                        }`}
+                        aria-label={`Ir para avaliação ${i + 1}`}
+                      />
+                    ))}
+                  </div>
                 </div>
               )}
             </div>

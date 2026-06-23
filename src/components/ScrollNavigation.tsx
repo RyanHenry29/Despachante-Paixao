@@ -16,6 +16,7 @@ const ScrollNavigation = () => {
 
   useEffect(() => {
     const checkPosition = () => {
+      if (isNavigating.current) return;
       const scrollBottom = window.innerHeight + window.scrollY;
       const pageHeight = document.documentElement.scrollHeight;
       setIsAtBottom(scrollBottom >= pageHeight - 100);

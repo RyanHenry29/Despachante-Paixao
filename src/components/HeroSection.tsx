@@ -2,6 +2,7 @@ import { useRef, useEffect } from "react";
 import { ArrowRight, Star, Car, FileText, Search, RefreshCw, Stamp, MapPin, Clock } from "lucide-react";
 import { motion } from "framer-motion";
 import logo from "@/assets/logo-despachante-paixao.png";
+import { useReviews } from "@/contexts/ReviewsContext";
 
 interface HeroSectionProps {
   onScrollToForm: () => void;
@@ -31,6 +32,7 @@ const services = [
 const HeroSection = ({ onScrollToForm }: HeroSectionProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const sectionRef = useRef<HTMLElement>(null);
+  const { totalReviews } = useReviews();
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -191,7 +193,7 @@ const HeroSection = ({ onScrollToForm }: HeroSectionProps) => {
                     </div>
                     <div className="text-left">
                       <p className="text-white font-bold text-sm leading-tight">5.0</p>
-                      <p className="text-white/50 text-xs group-hover:text-white/80 transition-colors">172 avaliações no Google</p>
+                       <p className="text-white/50 text-xs group-hover:text-white/80 transition-colors">{totalReviews > 0 ? `${totalReviews} avaliações no Google` : "Avaliações no Google"}</p>
                     </div>
                   </div>
                   <svg className="w-4 h-4 text-white/30 group-hover:text-white/70 transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

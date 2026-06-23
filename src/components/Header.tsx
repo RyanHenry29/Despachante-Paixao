@@ -66,25 +66,35 @@ const Header = ({ onScrollToForm }: HeaderProps) => {
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="md:hidden absolute top-full left-0 right-0 bg-white shadow-xl border-t border-border animate-fade-in">
-            <nav className="container-custom py-6 space-y-4">
+          <div
+            className={`md:hidden absolute top-full left-0 right-0 animate-fade-in shadow-2xl border-t ${
+              isScrolled
+                ? "bg-white border-border"
+                : "bg-[#0B1D3D] border-white/10"
+            }`}
+          >
+            <nav className="px-6 py-6 space-y-1">
               {navLinks.map((link) => (
                 <a
                   key={link.label}
                   href={link.href}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="block text-foreground/80 font-medium py-2 hover:text-accent transition-colors"
+                  className={`block font-semibold py-3 px-4 rounded-xl transition-all duration-200 ${
+                    isScrolled
+                      ? "text-foreground/80 hover:bg-accent/10 hover:text-accent"
+                      : "text-white/80 hover:bg-white/10 hover:text-white"
+                  }`}
                 >
                   {link.label}
                 </a>
               ))}
-              <div className="pt-4 border-t border-border">
+              <div className="pt-4 mt-4 border-t border-white/10">
                 <button
                   onClick={() => {
                     onScrollToForm();
                     setIsMobileMenuOpen(false);
                   }}
-                  className="w-full bg-accent text-accent-foreground py-3 rounded-lg font-semibold"
+                  className="w-full bg-accent hover:bg-accent/90 text-accent-foreground font-bold py-3.5 px-4 rounded-xl transition-all duration-200 shadow-lg"
                 >
                   Solicitar agora
                 </button>

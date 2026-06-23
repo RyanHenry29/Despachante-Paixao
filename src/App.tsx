@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import PoliticaPrivacidade from "./pages/PoliticaPrivacidade";
 import NotFound from "./pages/NotFound";
 import CookieConsent from "@/components/CookieConsent";
+import { ReviewsProvider } from "@/contexts/ReviewsContext";
 
 const queryClient = new QueryClient();
 
@@ -15,6 +16,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
+      <ReviewsProvider>
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
@@ -24,6 +26,7 @@ const App = () => (
         </Routes>
         <CookieConsent />
       </BrowserRouter>
+      </ReviewsProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
