@@ -7,7 +7,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Message } from "../types";
 import { searchKnowledge } from "../services/supabaseService";
-import { askAI } from "../services/groqService";
+import { askAI } from "../services/geminiService";
 import { WHATSAPP_LINK } from "../constants";
 
 export function useChat() {

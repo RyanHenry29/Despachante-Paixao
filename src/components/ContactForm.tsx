@@ -1,4 +1,4 @@
-import { useState, forwardRef } from "react";
+import { useState, forwardRef, useEffect, useRef } from "react";
 import { Send, Car, User, MessageSquare, CheckCircle, Loader2 } from "lucide-react";
 
 const services = [
@@ -27,6 +27,13 @@ const ContactForm = forwardRef<HTMLDivElement, ContactFormProps>(({ selectedServ
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [showSummary, setShowSummary] = useState(false);
+  const summaryRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (showSummary && summaryRef.current) {
+      summaryRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [showSummary]);
 
   if (selectedService && formData.service !== selectedService) {
     setFormData(prev => ({ ...prev, service: selectedService }));
@@ -245,7 +252,7 @@ const ContactForm = forwardRef<HTMLDivElement, ContactFormProps>(({ selectedServ
               </form>
             ) : (
               /* Summary View */
-              <div className="space-y-6">
+              <div ref={summaryRef} className="space-y-6">
                 <h3 className="text-xl font-bold text-foreground text-center mb-6">
                   Confirme seus dados
                 </h3>

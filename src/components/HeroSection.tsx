@@ -39,17 +39,28 @@ const HeroSection = ({ onScrollToForm }: HeroSectionProps) => {
     const video = videoRef.current;
     if (!section || !video) return;
 
+    const tryPlay = async () => {
+      try {
+        video.currentTime = 0;
+        await video.play();
+      } catch {
+        // Mobile browsers block autoplay without user interaction
+      }
+    };
+
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting && video.paused) {
-          video.currentTime = 0;
-          video.play();
+        if (entry.isIntersecting) {
+          tryPlay();
+        } else {
+          video.pause();
         }
       },
-      { threshold: 0.5 }
+      { threshold: 0.3 }
     );
 
     observer.observe(section);
+    tryPlay();
     return () => observer.disconnect();
   }, []);
 
@@ -71,8 +82,8 @@ const HeroSection = ({ onScrollToForm }: HeroSectionProps) => {
       {/* Dark overlay for readability */}
       <div className="absolute inset-0 bg-[#0B1D3D]/85 z-0" />
 
-      <div className="max-w-[1440px] mx-auto px-5 sm:px-6 lg:px-12 w-full relative z-10">
-        <div className="grid lg:grid-cols-[1.2fr_1fr] gap-8 lg:gap-16 items-center">
+      <div className="max-w-[1440px] mx-auto px-6 sm:px-8 lg:px-12 w-full relative z-10">
+        <div className="grid lg:grid-cols-[1.2fr_1fr] gap-6 sm:gap-8 lg:gap-16 items-center">
 
           {/* Left Column (Text and Value Prop) */}
           <motion.div
@@ -165,7 +176,7 @@ const HeroSection = ({ onScrollToForm }: HeroSectionProps) => {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="w-full max-w-md lg:max-w-lg"
             >
-              <div className="bg-[#132A52]/75 backdrop-blur-md border border-white/10 rounded-3xl p-6 sm:p-8 shadow-2xl transition-all duration-300 hover:border-accent/30 relative flex flex-col gap-6">
+              <div className="bg-[#132A52]/75 backdrop-blur-md border border-white/10 rounded-3xl p-5 sm:p-8 shadow-2xl transition-all duration-300 hover:border-accent/30 relative flex flex-col gap-5 sm:gap-6">
                 
                 {/* Brand */}
                 <div className="flex items-center gap-3.5 pb-6 border-b border-white/10">
