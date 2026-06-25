@@ -7,7 +7,7 @@ const SECTIONS = [
   "#formulario",
   "#avaliacoes",
   "#diferenciais",
-  "footer",
+  "#footer",
 ];
 
 const ScrollNavigation = () => {
@@ -16,7 +16,6 @@ const ScrollNavigation = () => {
 
   useEffect(() => {
     const checkPosition = () => {
-      if (isNavigating.current) return;
       const scrollBottom = window.innerHeight + window.scrollY;
       const pageHeight = document.documentElement.scrollHeight;
       setIsAtBottom(scrollBottom >= pageHeight - 100);
@@ -30,36 +29,35 @@ const ScrollNavigation = () => {
     if (isNavigating.current) return;
     isNavigating.current = true;
 
-    const elements = SECTIONS.map((s) =>
-      document.querySelector(s),
-    ).filter(Boolean) as HTMLElement[];
+    try {
+      const elements = SECTIONS.map((s) =>
+        document.querySelector(s),
+      ).filter(Boolean) as HTMLElement[];
 
-    if (!elements.length) {
-      isNavigating.current = false;
-      return;
+      if (!elements.length) return;
+
+      const viewportCenter = window.innerHeight / 2;
+      let closestIdx = 0;
+      let closestDist = Infinity;
+
+      elements.forEach((el, i) => {
+        const rect = el.getBoundingClientRect();
+        const elCenter = rect.top + rect.height / 2;
+        const dist = Math.abs(elCenter - viewportCenter);
+        if (dist < closestDist) {
+          closestDist = dist;
+          closestIdx = i;
+        }
+      });
+
+      const nextIdx = closestIdx + 1 >= elements.length ? 0 : closestIdx + 1;
+      elements[nextIdx].scrollIntoView({ behavior: "smooth", block: "start" });
+      setIsAtBottom(nextIdx >= elements.length - 1);
+    } finally {
+      setTimeout(() => {
+        isNavigating.current = false;
+      }, 400);
     }
-
-    const viewportCenter = window.innerHeight / 2;
-    let closestIdx = 0;
-    let closestDist = Infinity;
-
-    elements.forEach((el, i) => {
-      const rect = el.getBoundingClientRect();
-      const elCenter = rect.top + rect.height / 2;
-      const dist = Math.abs(elCenter - viewportCenter);
-      if (dist < closestDist) {
-        closestDist = dist;
-        closestIdx = i;
-      }
-    });
-
-    const nextIdx = closestIdx + 1 >= elements.length ? 0 : closestIdx + 1;
-    elements[nextIdx].scrollIntoView({ behavior: "smooth", block: "start" });
-    setIsAtBottom(nextIdx >= elements.length - 1);
-
-    setTimeout(() => {
-      isNavigating.current = false;
-    }, 500);
   }, []);
 
   return (

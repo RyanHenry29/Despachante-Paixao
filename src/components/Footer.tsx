@@ -3,7 +3,7 @@ import logo from "@/assets/logo-despachante-paixao.png";
 
 const Footer = () => {
   return (
-    <footer className="bg-primary text-white">
+    <footer id="footer" className="bg-primary text-white">
       {/* Main Footer */}
       <div className="container-custom py-[clamp(2.5rem,4vw,4rem)]">
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-12">

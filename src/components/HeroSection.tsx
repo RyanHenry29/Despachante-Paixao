@@ -61,23 +61,28 @@ const HeroSection = ({ onScrollToForm }: HeroSectionProps) => {
   return (
     <section ref={sectionRef} id="hero" className="bg-[#0B1D3D] relative min-h-screen flex items-center overflow-hidden">
       
+      {/* Background gradient (fallback + visible base) */}
+      <div className="absolute inset-0 z-0 bg-gradient-to-br from-[#0B1D3D] via-[#1A3668] to-[#0B1D3D]" />
+
       {/* Background Video */}
       <video
         ref={videoRef}
         autoPlay
         muted
         playsInline
-        loop
         preload="metadata"
-        className="absolute inset-0 w-full h-full object-cover z-0"
+        controlsList="noplaybutton nodownload noremoteplayback"
+        disablePictureInPicture
+        onEnded={(e) => (e.target as HTMLVideoElement).pause()}
+        className="absolute inset-0 w-full h-full object-cover z-[1] pointer-events-none"
       >
         <source src="/hero-bg.mp4" type="video/mp4" />
       </video>
       
       {/* Dark overlay for readability */}
-      <div className="absolute inset-0 bg-[#0B1D3D]/92 z-0" />
+      <div className="absolute inset-0 bg-[#0B1D3D]/80 z-[2]" />
 
-      <div className="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16 w-full relative z-10 overflow-hidden">
+      <div className="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16 w-full relative z-[3] overflow-hidden py-8 sm:py-12">
         <div className="grid lg:grid-cols-[1.2fr_1fr] gap-6 sm:gap-8 lg:gap-16 items-center">
 
           {/* Left Column (Text and Value Prop) */}
@@ -171,7 +176,7 @@ const HeroSection = ({ onScrollToForm }: HeroSectionProps) => {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="w-full max-w-[400px] sm:max-w-md lg:max-w-lg"
             >
-              <div className="bg-[#132A52]/75 backdrop-blur-md border border-white/10 rounded-3xl p-6 sm:p-9 shadow-2xl transition-all duration-300 hover:border-accent/30 relative flex flex-col gap-6 sm:gap-7">
+              <div className="bg-[#132A52]/80 backdrop-blur-md border border-white/10 rounded-3xl px-6 sm:px-9 py-8 sm:py-10 shadow-2xl transition-all duration-300 hover:border-accent/30 relative flex flex-col gap-6 sm:gap-7">
                 
                 {/* Brand */}
                 <div className="flex items-center gap-3.5 pb-6 border-b border-white/10">
