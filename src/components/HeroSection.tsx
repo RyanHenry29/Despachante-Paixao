@@ -1,5 +1,5 @@
-import { useRef, useEffect } from "react";
-import { ArrowRight, Star, Car, FileText, Search, RefreshCw, Stamp, MapPin, Clock } from "lucide-react";
+import { useRef, useEffect, useState } from "react";
+import { ArrowRight, Star, Car, FileText, Search, RefreshCw, Stamp, MapPin, Clock, Play } from "lucide-react";
 import { motion } from "framer-motion";
 import logo from "@/assets/logo-despachante-paixao.png";
 import { useReviews } from "@/contexts/ReviewsContext";
@@ -33,16 +33,23 @@ const HeroSection = ({ onScrollToForm }: HeroSectionProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const sectionRef = useRef<HTMLElement>(null);
   const { totalReviews } = useReviews();
+  const [videoError, setVideoError] = useState(false);
 
   useEffect(() => {
     const section = sectionRef.current;
     const video = videoRef.current;
     if (!section || !video) return;
 
+    const tryPlay = () => {
+      video.play().catch(() => {
+        setVideoError(true);
+      });
+    };
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          video.play().catch(() => {});
+          tryPlay();
         } else {
           video.pause();
         }
@@ -58,22 +65,28 @@ const HeroSection = ({ onScrollToForm }: HeroSectionProps) => {
     <section ref={sectionRef} id="hero" className="bg-[#0B1D3D] relative min-h-screen flex items-center overflow-hidden">
       
       {/* Background Video */}
-      <video
-        ref={videoRef}
-        autoPlay
-        muted
-        playsInline
-        loop
-        preload="metadata"
-        className="absolute inset-0 w-full h-full object-cover z-0"
-      >
-        <source src="/hero-bg.mp4" type="video/mp4" />
-      </video>
+      {videoError ? (
+        <div className="absolute inset-0 z-0 bg-gradient-to-br from-[#0B1D3D] via-[#132A52] to-[#0B1D3D]" />
+      ) : (
+        <video
+          ref={videoRef}
+          autoPlay
+          muted
+          playsInline
+          loop
+          preload="metadata"
+          poster="/hero-thumb.jpg"
+          onError={() => setVideoError(true)}
+          className="absolute inset-0 w-full h-full object-cover z-0"
+        >
+          <source src="/hero-bg.mp4" type="video/mp4" />
+        </video>
+      )}
       
       {/* Dark overlay for readability */}
       <div className="absolute inset-0 bg-[#0B1D3D]/85 z-0" />
 
-      <div className="max-w-[1440px] mx-auto px-5 sm:px-8 lg:px-12 w-full relative z-10">
+      <div className="max-w-[1440px] mx-auto px-5 sm:px-8 lg:px-12 w-full relative z-10 overflow-hidden">
         <div className="grid lg:grid-cols-[1.2fr_1fr] gap-6 sm:gap-8 lg:gap-16 items-center">
 
           {/* Left Column (Text and Value Prop) */}
@@ -116,7 +129,7 @@ const HeroSection = ({ onScrollToForm }: HeroSectionProps) => {
             <motion.div
               variants={fadeInUp}
               transition={{ duration: 0.5 }}
-              className="flex flex-wrap gap-2 justify-center lg:justify-start mb-10 max-w-[95%] sm:max-w-[90%] lg:max-w-full mx-auto"
+              className="flex flex-wrap gap-2 justify-center lg:justify-start mb-10 mx-auto"
             >
               {services.map((s) => (
                 <span
@@ -165,7 +178,7 @@ const HeroSection = ({ onScrollToForm }: HeroSectionProps) => {
             <motion.div
               variants={fadeInUp}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="w-full max-w-md lg:max-w-lg"
+              className="w-full max-w-[400px] sm:max-w-md lg:max-w-lg"
             >
               <div className="bg-[#132A52]/75 backdrop-blur-md border border-white/10 rounded-3xl p-5 sm:p-8 shadow-2xl transition-all duration-300 hover:border-accent/30 relative flex flex-col gap-5 sm:gap-6">
                 

@@ -22,6 +22,7 @@ export function useChat() {
   
   const msgsRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const cooldownRef = useRef(0);
 
   /**
    * Saudação inicial ao abrir o chat pela primeira vez
@@ -98,6 +99,9 @@ export function useChat() {
   const sendMessage = useCallback(async (text: string) => {
     const trimmedText = text.trim();
     if (!trimmedText || loading) return;
+    const now = Date.now();
+    if (now - cooldownRef.current < 2000) return;
+    cooldownRef.current = now;
 
     setShowSugs(false);
     setInput("");

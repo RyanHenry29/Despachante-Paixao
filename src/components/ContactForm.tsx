@@ -61,13 +61,14 @@ const ContactForm = forwardRef<HTMLDivElement, ContactFormProps>(({ selectedServ
     setShowSummary(true);
     
     setTimeout(() => {
-      const confirmButton = document.querySelector('#formulario button[type="button"]:last-child');
+      const confirmButton = document.querySelector<HTMLButtonElement>('#formulario .cta-primary');
       if (confirmButton) {
-        confirmButton.scrollIntoView({
-          behavior: 'smooth',
-          block: 'center'
-        });
-        (confirmButton as HTMLButtonElement).focus();
+        confirmButton.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        confirmButton.focus({ preventScroll: true });
+      } else {
+        const fallback = document.querySelector<HTMLButtonElement>('#formulario button:last-of-type');
+        fallback?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        fallback?.focus({ preventScroll: true });
       }
     }, 100);
   };

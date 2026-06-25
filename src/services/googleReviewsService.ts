@@ -8,6 +8,7 @@ import type {
 const EDGE_FUNCTION_URL = import.meta.env.VITE_SUPABASE_URL
   ? `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/reviews`
   : null;
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || "";
 
 const CACHE_KEY = "despachante_google_reviews_cache";
 const CACHE_TTL = 30 * 60 * 1000;
@@ -115,7 +116,9 @@ export const googleReviewsService = {
 
     inflightPromise = (async () => {
       try {
-        const res = await fetch(EDGE_FUNCTION_URL);
+        const res = await fetch(EDGE_FUNCTION_URL, {
+          headers: { Authorization: `Bearer ${SUPABASE_ANON_KEY}` },
+        });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
         const data: GooglePlaceDetailsResponse = await res.json();
