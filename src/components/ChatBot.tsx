@@ -29,7 +29,7 @@ export default function ChatBot() {
       {/* Botão Flutuante (Trigger) - Oculto no mobile para evitar sobreposição */}
       <button
         onClick={() => setOpen(true)}
-        className={`fixed bottom-5 right-5 z-50 hidden md:flex items-center gap-2 bg-[#0B1D3D] text-white px-4 py-3 rounded-full shadow-lg hover:bg-[#0B1D3D]/90 hover:scale-105 active:scale-95 transition-all duration-300 border border-white/10 ${
+        className={`fixed bottom-5 right-5 z-50 flex items-center gap-2 bg-[#0B1D3D] text-white px-4 py-3 rounded-full shadow-lg hover:bg-[#0B1D3D]/90 hover:scale-105 active:scale-95 transition-all duration-300 border border-white/10 ${
           open ? "opacity-0 pointer-events-none scale-90" : "opacity-100 scale-100"
         }`}
         aria-label="Abrir chat de atendimento"

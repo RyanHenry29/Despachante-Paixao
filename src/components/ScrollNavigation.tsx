@@ -66,7 +66,7 @@ const ScrollNavigation = () => {
     <button
       onClick={handleClick}
       aria-label={isAtBottom ? "Voltar ao topo" : "Próxima seção"}
-      className={`fixed bottom-8 left-1/2 -translate-x-1/2 z-40 hidden md:flex items-center justify-center w-14 h-14 rounded-full shadow-xl hover:shadow-2xl hover:scale-110 active:scale-95 transition-all duration-300 border-2 border-white/20 ${
+      className={`fixed bottom-8 left-1/2 -translate-x-1/2 z-40 flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-full shadow-xl hover:shadow-2xl hover:scale-110 active:scale-95 transition-all duration-300 border-2 border-white/20 ${
         isAtBottom
           ? "bg-white/20 text-white/60 hover:bg-white/30"
           : "bg-accent text-accent-foreground"
