@@ -13,12 +13,14 @@ const SECTIONS = [
 const ScrollNavigation = () => {
   const [isAtBottom, setIsAtBottom] = useState(false);
   const isNavigating = useRef(false);
+  const currentIdxRef = useRef(0);
 
   useEffect(() => {
     const checkPosition = () => {
-      const scrollBottom = window.innerHeight + window.scrollY;
-      const pageHeight = document.documentElement.scrollHeight;
-      setIsAtBottom(scrollBottom >= pageHeight - 200);
+      const footer = document.querySelector("#footer");
+      if (!footer) return;
+      const rect = footer.getBoundingClientRect();
+      setIsAtBottom(rect.top < window.innerHeight && rect.bottom >= 0);
     };
     window.addEventListener("scroll", checkPosition, { passive: true });
     checkPosition();
@@ -34,22 +36,27 @@ const ScrollNavigation = () => {
         document.querySelector(s),
       ).filter(Boolean) as HTMLElement[];
 
-      if (!elements.length) return;
+      if (!elements.length) {
+        currentIdxRef.current = 0;
+        return;
+      }
 
-      const scrollCenter = window.scrollY + window.innerHeight / 2;
-
-      let currentIdx = 0;
+      let visibleIdx = 0;
       for (let i = elements.length - 1; i >= 0; i--) {
-        const sectionTop = elements[i].getBoundingClientRect().top + window.scrollY;
-        if (sectionTop <= scrollCenter) {
-          currentIdx = i;
+        const r = elements[i].getBoundingClientRect();
+        if (r.top < window.innerHeight && r.bottom > 0) {
+          visibleIdx = i;
           break;
         }
       }
+      currentIdxRef.current = visibleIdx;
 
-      const nextIdx = (currentIdx + 1) % elements.length;
+      const nextIdx = (currentIdxRef.current + 1) % elements.length;
       elements[nextIdx].scrollIntoView({ behavior: "smooth", block: "start" });
+      currentIdxRef.current = nextIdx;
       setIsAtBottom(nextIdx === elements.length - 1);
+    } catch {
+      currentIdxRef.current = 0;
     } finally {
       setTimeout(() => {
         isNavigating.current = false;

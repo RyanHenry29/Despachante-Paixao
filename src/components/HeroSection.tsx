@@ -79,6 +79,7 @@ const HeroSection = ({ onScrollToForm }: HeroSectionProps) => {
         #hero video::-webkit-media-controls-panel { display: none !important; }
         #hero video::-webkit-media-controls-play-button { display: none !important; }
         #hero video::-webkit-media-controls-start-playback-button { display: none !important; }
+        #hero video::-webkit-media-controls-overlay-play-button { display: none !important; }
       `}</style>
 
       {/* Background Video */}
