@@ -1,14 +1,7 @@
-const ALLOWED_ORIGINS = [
-  "http://localhost:8080",
-  "http://localhost:3000",
-  "https://vfohittvuwriebiwwlto.supabase.co",
-];
-
 function getCorsHeaders(req: Request) {
   const origin = req.headers.get("origin") || "";
-  const allowed = ALLOWED_ORIGINS.includes(origin) ? origin : "https://vfohittvuwriebiwwlto.supabase.co";
   return {
-    "Access-Control-Allow-Origin": allowed,
+    "Access-Control-Allow-Origin": origin || "*",
     "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
   };
@@ -20,6 +13,7 @@ function buildSystemPrompt(ragContext: string): string {
   return `Você é o consultor do Despachante Paixão (Guarulhos-SP). Responda apenas o que foi perguntado, de forma organizada e visual. Use tópicos com • ou -, quebras de linha e emojis moderados. Seja direto, sem introduções ou despedidas. NUNCA invente valores, prazos ou regras. Máximo 8 linhas.
 
 REGRAS IMPORTANTES:
+- NUNCA direcione o cliente para Detran, Poupatempo ou outros órgãos externos. Sempre direcione para o WhatsApp do Despachante Paixão quando não souber a resposta.
 - Transferência por inventário (falecido): NÃO pede RG/CNH do proprietário falecido nem do inventariante. Só precisa RG/CPF do(s) herdeiro(s).
 
 ═══ LICENCIAMENTO SP 2026 ═══
@@ -102,7 +96,29 @@ Seg-Sex 07h-22h, Sáb 08h-18h, Dom 08h-14h. Guarulhos-SP. Pix, dinheiro, cartão
 BASE:
 ${ragContext}
 
-Sempre que falar em contratar serviço ou precisar de ajuda do despachante, inclua o link: https://wa.me/5511953284566. Máximo 1x por resposta.`;
+Só inclua o link https://wa.me/5511953284566 quando o usuário precisar contratar serviço (desbloqueio, documentação complexa, valores exatos). Não coloque em respostas simples de documentação.`;
+}
+
+const cache = new Map<string, { reply: string; timestamp: number }>();
+const CACHE_TTL = 10 * 60 * 1000;
+const RATE_LIMIT_REQUESTS = 20;
+const RATE_LIMIT_WINDOW = 60_000;
+const requestTimestamps: number[] = [];
+
+function checkRateLimit(): boolean {
+  const now = Date.now();
+  for (let i = requestTimestamps.length - 1; i >= 0; i--) {
+    if (now - requestTimestamps[i] > RATE_LIMIT_WINDOW) requestTimestamps.splice(i, 1);
+  }
+  if (requestTimestamps.length >= RATE_LIMIT_REQUESTS) return false;
+  requestTimestamps.push(now);
+  return true;
+}
+
+function getCacheKey(messages: { role: string; content: string }[], ragContext: string): string {
+  const last = messages.filter(m => m.role === "user").pop();
+  if (!last) return "";
+  return last.content.slice(0, 200) + "|" + ragContext.slice(0, 500);
 }
 
 Deno.serve(async (req) => {
@@ -111,6 +127,24 @@ Deno.serve(async (req) => {
 
   try {
     const { messages, ragContext } = await req.json();
+    const cacheKey = getCacheKey(messages, ragContext || "");
+
+    if (cacheKey) {
+      const cached = cache.get(cacheKey);
+      if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+        return new Response(JSON.stringify({ reply: cached.reply }), {
+          headers: { ...cors, "Content-Type": "application/json" },
+        });
+      }
+    }
+
+    if (!checkRateLimit()) {
+      return new Response(
+        JSON.stringify({ reply: `Aguarde um momento e tente novamente. Ou fale direto no WhatsApp: ${WHATSAPP} 📲` }),
+        { headers: { ...cors, "Content-Type": "application/json" } }
+      );
+    }
+
     const GROQ_API_KEY = Deno.env.get("DENO_GROQ_API_KEY");
     if (!GROQ_API_KEY) throw new Error("DENO_GROQ_API_KEY não configurado");
 
@@ -142,13 +176,17 @@ Deno.serve(async (req) => {
 
     if (res.status === 429) {
       return new Response(
-        JSON.stringify({ reply: `Limite de uso temporário atingido. Fale com a gente pelo WhatsApp: ${WHATSAPP} 📲` }),
+        JSON.stringify({ reply: `Muitas perguntas seguidas! Aguarde 10 segundos e tente de novo, ou fale direto no WhatsApp: ${WHATSAPP} 📲` }),
         { headers: { ...cors, "Content-Type": "application/json" } }
       );
     }
 
     const data = await res.json();
     const reply = data.choices?.[0]?.message?.content || "Desculpe, tive um problema. Tente novamente.";
+
+    if (cacheKey && reply) {
+      cache.set(cacheKey, { reply, timestamp: Date.now() });
+    }
 
     return new Response(JSON.stringify({ reply }), {
       headers: { ...cors, "Content-Type": "application/json" },
