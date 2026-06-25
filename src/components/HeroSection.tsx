@@ -43,19 +43,28 @@ const HeroSection = ({ onScrollToForm }: HeroSectionProps) => {
       video.play().catch(() => {});
     };
 
+    if (video.readyState >= 2) {
+      tryPlay();
+    } else {
+      video.addEventListener("canplay", tryPlay, { once: true });
+    }
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          tryPlay();
+          if (video.paused) tryPlay();
         } else {
           video.pause();
         }
       },
-      { threshold: 0.3 }
+      { threshold: 0 }
     );
 
     observer.observe(section);
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      video.removeEventListener("canplay", tryPlay);
+    };
   }, []);
 
   return (
@@ -64,15 +73,25 @@ const HeroSection = ({ onScrollToForm }: HeroSectionProps) => {
       {/* Background gradient (fallback + visible base) */}
       <div className="absolute inset-0 z-0 bg-gradient-to-br from-[#0B1D3D] via-[#1A3668] to-[#0B1D3D]" />
 
+      {/* Hides iOS native video controls (play/pause overlay) */}
+      <style>{`
+        #hero video::-webkit-media-controls { display: none !important; }
+        #hero video::-webkit-media-controls-panel { display: none !important; }
+        #hero video::-webkit-media-controls-play-button { display: none !important; }
+        #hero video::-webkit-media-controls-start-playback-button { display: none !important; }
+      `}</style>
+
       {/* Background Video */}
       <video
         ref={videoRef}
         autoPlay
         muted
         playsInline
-        preload="metadata"
+        webkit-playsinline="true"
+        preload="auto"
         controlsList="noplaybutton nodownload noremoteplayback"
         disablePictureInPicture
+        disableRemotePlayback
         onEnded={(e) => (e.target as HTMLVideoElement).pause()}
         className="absolute inset-0 w-full h-full object-cover z-[1] pointer-events-none"
       >

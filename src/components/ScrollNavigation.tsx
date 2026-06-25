@@ -18,7 +18,7 @@ const ScrollNavigation = () => {
     const checkPosition = () => {
       const scrollBottom = window.innerHeight + window.scrollY;
       const pageHeight = document.documentElement.scrollHeight;
-      setIsAtBottom(scrollBottom >= pageHeight - 100);
+      setIsAtBottom(scrollBottom >= pageHeight - 200);
     };
     window.addEventListener("scroll", checkPosition, { passive: true });
     checkPosition();
@@ -36,23 +36,20 @@ const ScrollNavigation = () => {
 
       if (!elements.length) return;
 
-      const viewportCenter = window.innerHeight / 2;
-      let closestIdx = 0;
-      let closestDist = Infinity;
+      const scrollCenter = window.scrollY + window.innerHeight / 2;
 
-      elements.forEach((el, i) => {
-        const rect = el.getBoundingClientRect();
-        const elCenter = rect.top + rect.height / 2;
-        const dist = Math.abs(elCenter - viewportCenter);
-        if (dist < closestDist) {
-          closestDist = dist;
-          closestIdx = i;
+      let currentIdx = 0;
+      for (let i = elements.length - 1; i >= 0; i--) {
+        const sectionTop = elements[i].getBoundingClientRect().top + window.scrollY;
+        if (sectionTop <= scrollCenter) {
+          currentIdx = i;
+          break;
         }
-      });
+      }
 
-      const nextIdx = closestIdx + 1 >= elements.length ? 0 : closestIdx + 1;
+      const nextIdx = (currentIdx + 1) % elements.length;
       elements[nextIdx].scrollIntoView({ behavior: "smooth", block: "start" });
-      setIsAtBottom(nextIdx >= elements.length - 1);
+      setIsAtBottom(nextIdx === elements.length - 1);
     } finally {
       setTimeout(() => {
         isNavigating.current = false;
