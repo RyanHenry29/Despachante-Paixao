@@ -11,7 +11,7 @@ const EDGE_FUNCTION_URL = import.meta.env.VITE_SUPABASE_URL
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || "";
 
 const CACHE_KEY = "despachante_google_reviews_cache";
-const CACHE_TTL = 30 * 60 * 1000;
+const CACHE_TTL = 10 * 60 * 1000;
 
 let inflightPromise: Promise<GoogleReviewsResponse> | null = null;
 

@@ -3,7 +3,7 @@ import { googleReviewsService } from "@/services/googleReviewsService";
 import { useReviews } from "@/contexts/ReviewsContext";
 import type { GoogleReview } from "@/types/googleReviews";
 
-const POLL_INTERVAL_MS = 60 * 60 * 1000;
+const POLL_INTERVAL_MS = 15 * 60 * 1000;
 
 export interface UseGoogleReviewsResult {
   reviews: GoogleReview[];
