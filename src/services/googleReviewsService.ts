@@ -1,40 +1,18 @@
 import type {
   GoogleReview,
-  GooglePlaceSearchResponse,
   GooglePlaceDetailsResponse,
   GoogleReviewsResponse,
   CacheEntry,
 } from "@/types/googleReviews";
 
-const API_BASE = "https://places.googleapis.com/v1";
+const EDGE_FUNCTION_URL = import.meta.env.VITE_SUPABASE_URL
+  ? `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/reviews`
+  : null;
+
 const CACHE_KEY = "despachante_google_reviews_cache";
 const CACHE_TTL = 30 * 60 * 1000;
-const PLACE_ID = "ChIJjf_y6uGJzpQRzJYssyNyLZg";
-const REQUEST_TIMEOUT = 10000;
-const MAX_RETRIES = 3;
-const INITIAL_RETRY_DELAY = 1000;
 
-const LOG_PREFIX = "[GoogleReviewsService]";
-
-enum LogEvent {
-  SEARCH_PLACE_START = "SEARCH_PLACE_START",
-  SEARCH_PLACE_SUCCESS = "SEARCH_PLACE_SUCCESS",
-  PLACE_DETAILS_SUCCESS = "PLACE_DETAILS_SUCCESS",
-  CACHE_HIT = "CACHE_HIT",
-  CACHE_MISS = "CACHE_MISS",
-  API_ERROR = "API_ERROR",
-}
-
-function structuredLog(event: LogEvent, data?: Record<string, unknown>): void {
-}
-
-function getApiKey(): string {
-  const key = import.meta.env.VITE_GOOGLE_PLACES_API_KEY;
-  if (!key) {
-    throw new Error("VITE_GOOGLE_PLACES_API_KEY nao definida. Configure no .env");
-  }
-  return key;
-}
+let inflightPromise: Promise<GoogleReviewsResponse> | null = null;
 
 function sanitizeString(value: string | null | undefined, maxLength = 5000): string {
   if (!value) return "";
@@ -44,52 +22,6 @@ function sanitizeString(value: string | null | undefined, maxLength = 5000): str
 function sanitizeNumber(value: number | null | undefined, fallback: number): number {
   if (typeof value !== "number" || isNaN(value)) return fallback;
   return value;
-}
-
-async function fetchWithTimeout(url: string, options: RequestInit, timeoutMs: number): Promise<Response> {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
-  try {
-    const response = await fetch(url, { ...options, signal: controller.signal });
-    return response;
-  } finally {
-    clearTimeout(timeoutId);
-  }
-}
-
-async function fetchWithRetry(url: string, options: RequestInit, retries: number): Promise<Response> {
-  let lastError: Error | null = null;
-  let delay = INITIAL_RETRY_DELAY;
-
-  for (let attempt = 0; attempt <= retries; attempt++) {
-    try {
-      const response = await fetchWithTimeout(url, options, REQUEST_TIMEOUT);
-      if (response.ok) return response;
-
-      if (response.status >= 400 && response.status < 500 && response.status !== 429) {
-        const body = await response.text().catch(() => "");
-        throw new Error(`HTTP ${response.status}: ${body}`);
-      }
-
-      if (attempt < retries) {
-        structuredLog(LogEvent.API_ERROR, { status: response.status, attempt: attempt + 1, retries });
-        await new Promise((r) => setTimeout(r, delay));
-        delay *= 2;
-      } else {
-        const body = await response.text().catch(() => "");
-        throw new Error(`HTTP ${response.status}: ${body}`);
-      }
-    } catch (err) {
-      lastError = err instanceof Error ? err : new Error(String(err));
-      if (attempt < retries) {
-        structuredLog(LogEvent.API_ERROR, { message: lastError.message, attempt: attempt + 1 });
-        await new Promise((r) => setTimeout(r, delay));
-        delay *= 2;
-      }
-    }
-  }
-
-  throw lastError ?? new Error("Falha na requisicao apos retries");
 }
 
 function parseRelativeTime(publishTime?: string): string {
@@ -110,73 +42,13 @@ function parseRelativeTime(publishTime?: string): string {
     if (diffSeconds < 60) return "há menos de 1 minuto";
     if (diffMinutes < 60) return `há ${diffMinutes} minuto${diffMinutes > 1 ? "s" : ""}`;
     if (diffHours < 24) return `há ${diffHours} hora${diffHours > 1 ? "s" : ""}`;
-    if (diffDays < 7) return `há ${diffDays} dia${diffDays > 1 ? "s" : ""}`;
+    if (diffDays < 30) return `há ${diffDays} dia${diffDays > 1 ? "s" : ""}`;
     if (diffWeeks < 5) return `há ${diffWeeks} semana${diffWeeks > 1 ? "s" : ""}`;
     if (diffMonths < 12) return `há ${diffMonths} mês${diffMonths > 1 ? "es" : ""}`;
     return `há ${diffYears} ano${diffYears > 1 ? "s" : ""}`;
   } catch {
     return "Recente";
   }
-}
-
-async function searchPlaceId(apiKey: string): Promise<string> {
-  structuredLog(LogEvent.SEARCH_PLACE_START);
-
-  const url = `${API_BASE}/places:searchText`;
-  const response = await fetchWithRetry(
-    url,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Goog-Api-Key": apiKey,
-        "X-Goog-FieldMask": "places.id,places.displayName",
-      },
-      body: JSON.stringify({
-        textQuery: "Despachante Paixão Guarulhos",
-        languageCode: "pt-BR",
-      }),
-    },
-    MAX_RETRIES
-  );
-
-  const data: GooglePlaceSearchResponse = await response.json();
-
-  if (!data.places || data.places.length === 0) {
-    throw new Error("Nenhum Place ID encontrado para a busca");
-  }
-
-  const placeId = data.places[0].id;
-  if (!placeId || typeof placeId !== "string") {
-    throw new Error("Place ID invalido retornado pela API");
-  }
-
-  structuredLog(LogEvent.SEARCH_PLACE_SUCCESS, { placeId });
-  return placeId;
-}
-
-async function fetchPlaceDetails(placeId: string, apiKey: string): Promise<GooglePlaceDetailsResponse> {
-  const url = `${API_BASE}/places/${encodeURIComponent(placeId)}`;
-  const response = await fetchWithRetry(
-    url,
-    {
-      method: "GET",
-      headers: {
-        "X-Goog-Api-Key": apiKey,
-        "X-Goog-FieldMask": "id,displayName,rating,userRatingCount,reviews.name,reviews.relativePublishTimeDescription,reviews.text,reviews.originalText,reviews.rating,reviews.authorAttribution,reviews.publishTime",
-      },
-    },
-    MAX_RETRIES
-  );
-
-  const data: GooglePlaceDetailsResponse = await response.json();
-
-  if (!data || typeof data !== "object") {
-    throw new Error("Resposta invalida da API Places");
-  }
-
-  structuredLog(LogEvent.PLACE_DETAILS_SUCCESS, { placeId });
-  return data;
 }
 
 function parsePlaceDetails(data: GooglePlaceDetailsResponse): GoogleReviewsResponse {
@@ -206,9 +78,7 @@ function getFromCache(): GoogleReviewsResponse | null {
     if (!raw) return null;
 
     const entry: CacheEntry<GoogleReviewsResponse> = JSON.parse(raw);
-    const elapsed = Date.now() - entry.timestamp;
-
-    if (elapsed < entry.ttl) {
+    if (Date.now() - entry.timestamp < entry.ttl) {
       return entry.data;
     }
 
@@ -228,24 +98,38 @@ function setCache(data: GoogleReviewsResponse): void {
     };
     localStorage.setItem(CACHE_KEY, JSON.stringify(entry));
   } catch {
+    // Cache write failures are non-critical
   }
 }
 
 export const googleReviewsService = {
   async fetchReviews(): Promise<GoogleReviewsResponse> {
     const cached = getFromCache();
-    if (cached) {
-      structuredLog(LogEvent.CACHE_HIT);
-      return cached;
+    if (cached) return cached;
+
+    if (inflightPromise) return inflightPromise;
+
+    if (!EDGE_FUNCTION_URL) {
+      return { reviews: [], rating: 0, totalReviews: 0, placeName: "Despachante Paixão" };
     }
 
-    structuredLog(LogEvent.CACHE_MISS);
+    inflightPromise = (async () => {
+      try {
+        const res = await fetch(EDGE_FUNCTION_URL);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-    const apiKey = getApiKey();
-    const details = await fetchPlaceDetails(PLACE_ID, apiKey);
-    const parsed = parsePlaceDetails(details);
+        const data: GooglePlaceDetailsResponse = await res.json();
+        const parsed = parsePlaceDetails(data);
+        setCache(parsed);
+        return parsed;
+      } catch {
+        return { reviews: [], rating: 0, totalReviews: 0, placeName: "Despachante Paixão" };
+      } finally {
+        inflightPromise = null;
+      }
+    })();
 
-    setCache(parsed);
-    return parsed;
+    return inflightPromise;
   },
 };
+

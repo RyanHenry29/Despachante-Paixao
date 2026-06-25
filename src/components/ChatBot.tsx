@@ -26,10 +26,10 @@ export default function ChatBot() {
 
   return (
     <div className="chatbot-container">
-      {/* Botão Flutuante (Trigger) */}
+      {/* Botão Flutuante (Trigger) - Oculto no mobile para evitar sobreposição */}
       <button
         onClick={() => setOpen(true)}
-        className={`fixed bottom-5 right-5 z-50 flex items-center gap-2 bg-[#0B1D3D] text-white px-4 py-3 rounded-full shadow-lg hover:bg-[#0B1D3D]/90 hover:scale-105 active:scale-95 transition-all duration-300 border border-white/10 ${
+        className={`fixed bottom-5 right-5 z-50 hidden md:flex items-center gap-2 bg-[#0B1D3D] text-white px-4 py-3 rounded-full shadow-lg hover:bg-[#0B1D3D]/90 hover:scale-105 active:scale-95 transition-all duration-300 border border-white/10 ${
           open ? "opacity-0 pointer-events-none scale-90" : "opacity-100 scale-100"
         }`}
         aria-label="Abrir chat de atendimento"
@@ -123,6 +123,24 @@ export default function ChatBot() {
                 </button>
               ))}
             </div>
+          </div>
+        )}
+
+        {/* WhatsApp Button for Special Queries */}
+        {messages.some(msg => msg.content.includes("Os valores podem variar conforme o veículo")) && (
+          <div className="px-4 py-3 bg-white border-t border-gray-100 flex-shrink-0">
+            <a
+              href={WHATSAPP_HREF}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20BA5A] text-white font-bold py-3 px-4 rounded-xl shadow-lg transition-all duration-300"
+            >
+              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.669.149-.197.297-.771.966-.94 1.164-.173.198-.347.223-.644.075-.297-.15-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.1-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.569-.01-.198 0-.52.074-.792.372-.272.298-1.04 1.016-1.04 2.479 0 1.462.985 2.875 1.123 3.074.137.198 1.931 2.958 4.676 4.135.653.28 1.158.447 1.552.572.654.174 1.25.149 1.72.09.525-.064 1.612-.656 1.839-1.29.226-.634.226-1.177.158-1.29-.068-.114-.247-.183-.52-.332z"/>
+                <path d="M12 2C6.486 2 2 6.486 2 12c0 1.94.519 3.76 1.507 5.35L2 22l5.65-1.507A9.969 9.969 0 0012 22c5.514 0 10-4.486 10-10S17.514 2 12 2zm0 18c-1.476 0-2.886-.393-4.1-1.078l-.294-.174-3.118.819 1.32-3.046-.192-.306A7.97 7.97 0 014 12c0-4.411 3.589-8 8-8s8 3.589 8 8-3.589 8-8 8z"/>
+              </svg>
+              <span>Falar com um Especialista</span>
+            </a>
           </div>
         )}
 

@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { googleReviewsService } from "@/services/googleReviewsService";
+import { useReviews } from "@/contexts/ReviewsContext";
 import type { GoogleReview } from "@/types/googleReviews";
 
 const POLL_INTERVAL_MS = 60 * 60 * 1000;
@@ -16,7 +17,8 @@ export interface UseGoogleReviewsResult {
 }
 
 export function useGoogleReviews(): UseGoogleReviewsResult {
-  const [loading, setLoading] = useState(true);
+  const { setReviewsData } = useReviews();
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [reviews, setReviews] = useState<GoogleReview[]>([]);
   const [rating, setRating] = useState(0);
@@ -38,13 +40,19 @@ export function useGoogleReviews(): UseGoogleReviewsResult {
       setRating(result.rating);
       setTotalReviews(result.totalReviews);
       setPlaceName(result.placeName);
+      setReviewsData({
+        rating: result.rating,
+        totalReviews: result.totalReviews,
+        placeName: result.placeName,
+        reviews: result.reviews,
+      });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erro ao carregar avaliações");
     } finally {
       setLoading(false);
       fetchingRef.current = false;
     }
-  }, []);
+  }, [setReviewsData]);
 
   const handleIntersection = useCallback(
     (entries: IntersectionObserverEntry[]) => {
@@ -85,7 +93,7 @@ export function useGoogleReviews(): UseGoogleReviewsResult {
       load();
     }, POLL_INTERVAL_MS);
     return () => clearInterval(interval);
-  }, [shouldFetch, load]);
+  }, [load]);
 
   const result = useMemo(
     () => ({

@@ -39,19 +39,10 @@ const HeroSection = ({ onScrollToForm }: HeroSectionProps) => {
     const video = videoRef.current;
     if (!section || !video) return;
 
-    const tryPlay = async () => {
-      try {
-        video.currentTime = 0;
-        await video.play();
-      } catch {
-        // Mobile browsers block autoplay without user interaction
-      }
-    };
-
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          tryPlay();
+          video.play().catch(() => {});
         } else {
           video.pause();
         }
@@ -60,7 +51,6 @@ const HeroSection = ({ onScrollToForm }: HeroSectionProps) => {
     );
 
     observer.observe(section);
-    tryPlay();
     return () => observer.disconnect();
   }, []);
 
@@ -73,7 +63,8 @@ const HeroSection = ({ onScrollToForm }: HeroSectionProps) => {
         autoPlay
         muted
         playsInline
-        onEnded={(e) => { e.currentTarget.pause(); }}
+        loop
+        preload="metadata"
         className="absolute inset-0 w-full h-full object-cover z-0"
       >
         <source src="/hero-bg.mp4" type="video/mp4" />
@@ -82,7 +73,7 @@ const HeroSection = ({ onScrollToForm }: HeroSectionProps) => {
       {/* Dark overlay for readability */}
       <div className="absolute inset-0 bg-[#0B1D3D]/85 z-0" />
 
-      <div className="max-w-[1440px] mx-auto px-6 sm:px-8 lg:px-12 w-full relative z-10">
+      <div className="max-w-[1440px] mx-auto px-5 sm:px-8 lg:px-12 w-full relative z-10">
         <div className="grid lg:grid-cols-[1.2fr_1fr] gap-6 sm:gap-8 lg:gap-16 items-center">
 
           {/* Left Column (Text and Value Prop) */}
@@ -118,21 +109,21 @@ const HeroSection = ({ onScrollToForm }: HeroSectionProps) => {
               transition={{ duration: 0.5 }}
               className="text-[clamp(1rem,1.25vw,1.2rem)] text-white/75 max-w-xl mx-auto lg:mx-0 mb-8 leading-relaxed"
             >
-              Você envia os documentos digitalizados e nós resolvemos direto no sistema do Detran. Sem fila, sem taxas escondidas, sem passar de setor em setor.
+              Regularize seu veículo com segurança, rapidez e acompanhamento especializado. Transferência, licenciamento, débitos, segunda via e emplacamento sem filas e com atendimento direto pelo WhatsApp.
             </motion.p>
 
             {/* Service Pills */}
             <motion.div
               variants={fadeInUp}
               transition={{ duration: 0.5 }}
-              className="flex flex-wrap gap-3 justify-center lg:justify-start mb-10"
+              className="flex flex-wrap gap-2 justify-center lg:justify-start mb-10 max-w-[95%] sm:max-w-[90%] lg:max-w-full mx-auto"
             >
               {services.map((s) => (
                 <span
                   key={s.label}
-                  className="inline-flex items-center gap-1.5 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-white/80 hover:text-white text-xs sm:text-[clamp(0.75rem,0.9vw,0.825rem)] font-semibold px-3 sm:px-3.5 py-2 rounded-xl transition-all duration-300 cursor-pointer shadow-sm"
+                  className="inline-flex items-center gap-1.5 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-white/80 hover:text-white text-[10px] sm:text-xs lg:text-[clamp(0.75rem,0.9vw,0.825rem)] font-semibold px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl transition-all duration-300 cursor-pointer shadow-sm whitespace-nowrap max-w-[120px] sm:max-w-none"
                 >
-                  <s.icon className="w-3.5 h-3.5 text-accent" />
+                  <s.icon className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-accent" />
                   {s.label}
                 </span>
               ))}

@@ -63,6 +63,35 @@ export function useChat() {
     }
   }, [open]);
 
+  const handleSpecialQuery = useCallback((text: string) => {
+    const lowerText = text.toLowerCase();
+    const transferKeywords = [
+      "valores de transferência",
+      "quanto custa transferência",
+      "preço transferência",
+      "valor transferência",
+      "custo transferência",
+      "tarifa transferência",
+      "transferência moto",
+      "transferência carro",
+      "transferência veículo"
+    ];
+    
+    if (transferKeywords.some(keyword => lowerText.includes(keyword))) {
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content: "Os valores podem variar conforme o veículo e a situação do processo. Para informar o valor correto, nossa equipe precisa analisar alguns dados. Fale conosco pelo WhatsApp e enviaremos o orçamento rapidamente.",
+          timestamp: Date.now()
+        },
+      ]);
+      setShowSugs(false);
+      return true;
+    }
+    return false;
+  }, []);
+
   /**
    * Função principal para envio de mensagens
    */
@@ -85,6 +114,11 @@ export function useChat() {
     setLoading(true);
 
     try {
+      if (handleSpecialQuery(trimmedText)) {
+        setLoading(false);
+        return;
+      }
+
       const ragContext = await searchKnowledge(trimmedText);
       if (ragContext) setUsedRag(true);
 
@@ -126,7 +160,7 @@ export function useChat() {
     } finally {
       setLoading(false);
     }
-  }, [loading, messages]);
+  }, [loading, messages, handleSpecialQuery]);
 
   return {
     open, setOpen,

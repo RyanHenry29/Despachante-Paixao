@@ -31,13 +31,16 @@ const ContactForm = forwardRef<HTMLDivElement, ContactFormProps>(({ selectedServ
 
   useEffect(() => {
     if (showSummary && summaryRef.current) {
-      summaryRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+      const top = summaryRef.current.getBoundingClientRect().top + window.scrollY - 120;
+      window.scrollTo({ top, behavior: "smooth" });
     }
   }, [showSummary]);
 
-  if (selectedService && formData.service !== selectedService) {
-    setFormData(prev => ({ ...prev, service: selectedService }));
-  }
+  useEffect(() => {
+    if (selectedService && formData.service !== selectedService) {
+      setFormData(prev => ({ ...prev, service: selectedService }));
+    }
+  }, [selectedService, formData.service]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -45,11 +48,7 @@ const ContactForm = forwardRef<HTMLDivElement, ContactFormProps>(({ selectedServ
   };
 
   const formatPlate = (value: string) => {
-    const upper = value.toUpperCase().replace(/[^A-Z0-9]/g, "");
-    if (upper.length <= 7) {
-      return upper.replace(/([A-Z]{3})(\d)/, "$1-$2");
-    }
-    return value;
+    return value.toUpperCase().replace(/[^A-Z0-9]/g, "");
   };
 
   const handlePlateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -57,9 +56,25 @@ const ContactForm = forwardRef<HTMLDivElement, ContactFormProps>(({ selectedServ
     handleChange(e);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmitWithScroll = (e: React.FormEvent) => {
     e.preventDefault();
     setShowSummary(true);
+    
+    setTimeout(() => {
+      const confirmButton = document.querySelector('#formulario button[type="button"]:last-child');
+      if (confirmButton) {
+        confirmButton.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center'
+        });
+        (confirmButton as HTMLButtonElement).focus();
+      }
+    }, 100);
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleSubmitWithScroll(e);
   };
 
   const confirmSubmit = () => {

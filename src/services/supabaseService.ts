@@ -2,6 +2,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { INTENT_MAP } from "../constants";
 
 export async function searchKnowledge(query: string): Promise<string> {
+  if (!supabase) return "";
+
   const lowerQuery = query.toLowerCase();
   const results: string[] = [];
 
@@ -15,23 +17,24 @@ export async function searchKnowledge(query: string): Promise<string> {
   if (detectedPrefixes.size > 0) {
     try {
       const orCondition = Array.from(detectedPrefixes)
-        .map(p => `title.like.${p}%`)
+        .map(p => `category.like.${p}%`)
         .join(",");
 
       const { data, error } = await supabase
-        .from("knowledge_base" as never)
+        .from("knowledge_base")
         .select("content")
         .or(orCondition)
         .limit(5);
 
       if (!error && data) {
-        data.forEach((item: any) => {
+        for (const item of data) {
           if (!results.includes(item.content)) {
             results.push(item.content);
           }
-        });
+        }
       }
-    } catch (err) {
+    } catch {
+      // Query errors are non-blocking; return partial results
     }
   }
 
@@ -46,23 +49,24 @@ export async function searchKnowledge(query: string): Promise<string> {
 
     if (ftsQuery) {
       const { data, error } = await supabase
-        .from("knowledge_base" as never)
+        .from("knowledge_base")
         .select("content")
-        .textSearch("content", ftsQuery, { 
-          type: "plain", 
-          config: "portuguese" 
+        .textSearch("content", ftsQuery, {
+          type: "plain",
+          config: "portuguese",
         })
         .limit(3);
 
       if (!error && data) {
-        data.forEach((item: any) => {
+        for (const item of data) {
           if (!results.includes(item.content)) {
             results.push(item.content);
           }
-        });
+        }
       }
     }
-  } catch (err) {
+  } catch {
+    // FTS query errors are non-blocking
   }
 
   return results.slice(0, 6).join("\n\n---\n\n");
