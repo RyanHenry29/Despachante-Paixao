@@ -1,4 +1,4 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useInsertionEffect } from "react";
 import { ArrowRight, Star, Car, FileText, Search, RefreshCw, Stamp, MapPin, Clock } from "lucide-react";
 import { motion } from "framer-motion";
 import logo from "@/assets/logo-despachante-paixao.png";
@@ -29,10 +29,25 @@ const services = [
   { icon: Stamp, label: "Emplacamento" },
 ];
 
+const HERO_VIDEO_CSS = `
+#hero video::-webkit-media-controls { display: none !important; }
+#hero video::-webkit-media-controls-panel { display: none !important; }
+#hero video::-webkit-media-controls-play-button { display: none !important; }
+#hero video::-webkit-media-controls-start-playback-button { display: none !important; }
+#hero video::-webkit-media-controls-overlay-play-button { display: none !important; }
+`;
+
 const HeroSection = ({ onScrollToForm }: HeroSectionProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const sectionRef = useRef<HTMLElement>(null);
   const { totalReviews } = useReviews();
+
+  useInsertionEffect(() => {
+    const style = document.createElement("style");
+    style.textContent = HERO_VIDEO_CSS;
+    document.head.appendChild(style);
+    return () => style.remove();
+  }, []);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -72,15 +87,6 @@ const HeroSection = ({ onScrollToForm }: HeroSectionProps) => {
       
       {/* Background gradient (fallback + visible base) */}
       <div className="absolute inset-0 z-0 bg-gradient-to-br from-[#0B1D3D] via-[#1A3668] to-[#0B1D3D]" />
-
-      {/* Hides iOS native video controls (play/pause overlay) */}
-      <style>{`
-        #hero video::-webkit-media-controls { display: none !important; }
-        #hero video::-webkit-media-controls-panel { display: none !important; }
-        #hero video::-webkit-media-controls-play-button { display: none !important; }
-        #hero video::-webkit-media-controls-start-playback-button { display: none !important; }
-        #hero video::-webkit-media-controls-overlay-play-button { display: none !important; }
-      `}</style>
 
       {/* Background Video */}
       <video

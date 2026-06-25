@@ -41,16 +41,21 @@ const ScrollNavigation = () => {
         return;
       }
 
-      let visibleIdx = 0;
-      for (let i = elements.length - 1; i >= 0; i--) {
-        const r = elements[i].getBoundingClientRect();
-        if (r.top < window.innerHeight && r.bottom > 0) {
-          visibleIdx = i;
-          break;
-        }
-      }
-      currentIdxRef.current = visibleIdx;
+      const scrollY = window.scrollY;
+      let closestIdx = 0;
+      let closestDist = Infinity;
 
+      elements.forEach((el, i) => {
+        const rect = el.getBoundingClientRect();
+        const elTop = rect.top + scrollY;
+        const dist = Math.abs(elTop - scrollY);
+        if (dist < closestDist) {
+          closestDist = dist;
+          closestIdx = i;
+        }
+      });
+
+      currentIdxRef.current = closestIdx;
       const nextIdx = (currentIdxRef.current + 1) % elements.length;
       elements[nextIdx].scrollIntoView({ behavior: "smooth", block: "start" });
       currentIdxRef.current = nextIdx;
