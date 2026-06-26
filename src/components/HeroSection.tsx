@@ -35,6 +35,7 @@ const HERO_VIDEO_CSS = `
 #hero video::-webkit-media-controls-play-button { display: none !important; }
 #hero video::-webkit-media-controls-start-playback-button { display: none !important; }
 #hero video::-webkit-media-controls-overlay-play-button { display: none !important; }
+#hero video::-internal-media-controls-overlay-cast-button { display: none !important; }
 `;
 
 const HeroSection = ({ onScrollToForm }: HeroSectionProps) => {
@@ -54,18 +55,28 @@ const HeroSection = ({ onScrollToForm }: HeroSectionProps) => {
     const video = videoRef.current;
     if (!section || !video) return;
 
+    let isMounted = true;
+
     const tryPlay = () => {
+      if (!isMounted) return;
       video.play().catch(() => {});
+    };
+
+    video.load();
+
+    const onCanPlay = () => {
+      if (isMounted) tryPlay();
     };
 
     if (video.readyState >= 2) {
       tryPlay();
     } else {
-      video.addEventListener("canplay", tryPlay, { once: true });
+      video.addEventListener("canplay", onCanPlay, { once: true });
     }
 
     const observer = new IntersectionObserver(
       ([entry]) => {
+        if (!isMounted) return;
         if (entry.isIntersecting) {
           if (video.paused) tryPlay();
         } else {
@@ -77,8 +88,10 @@ const HeroSection = ({ onScrollToForm }: HeroSectionProps) => {
 
     observer.observe(section);
     return () => {
+      isMounted = false;
       observer.disconnect();
-      video.removeEventListener("canplay", tryPlay);
+      video.removeEventListener("canplay", onCanPlay);
+      video.pause();
     };
   }, []);
 
@@ -99,12 +112,19 @@ const HeroSection = ({ onScrollToForm }: HeroSectionProps) => {
         controlsList="noplaybutton nodownload noremoteplayback"
         disablePictureInPicture
         disableRemotePlayback
-        onEnded={(e) => (e.target as HTMLVideoElement).pause()}
-        className="absolute inset-0 w-full h-full object-cover z-[1] pointer-events-none"
+        onEnded={(e) => {
+          const v = e.target as HTMLVideoElement;
+          v.currentTime = v.duration - 0.05;
+        }}
+        className="absolute inset-0 w-full h-full object-cover z-[1]"
+        style={{ background: "linear-gradient(135deg, #0B1D3D, #1A3668)" }}
       >
         <source src="/hero-bg.mp4" type="video/mp4" />
       </video>
-      
+
+      {/* Touch interceptor for iOS (prevents native controls) */}
+      <div className="absolute inset-0 z-[1.5]" />
+
       {/* Dark overlay for readability */}
       <div className="absolute inset-0 bg-[#0B1D3D]/80 z-[2]" />
 

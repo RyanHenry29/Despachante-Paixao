@@ -1,26 +1,19 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { ChevronDown } from "lucide-react";
 
-const SECTIONS = [
-  "#hero",
-  "#servicos",
-  "#formulario",
-  "#avaliacoes",
-  "#diferenciais",
-  "#footer",
-];
+const SECTIONS = ["hero", "servicos", "formulario", "avaliacoes", "diferenciais", "footer"];
+
+const HEADER_OFFSET = 72;
 
 const ScrollNavigation = () => {
   const [isAtBottom, setIsAtBottom] = useState(false);
   const isNavigating = useRef(false);
-  const currentIdxRef = useRef(0);
 
   useEffect(() => {
     const checkPosition = () => {
-      const footer = document.querySelector("#footer");
-      if (!footer) return;
-      const rect = footer.getBoundingClientRect();
-      setIsAtBottom(rect.top < window.innerHeight && rect.bottom >= 0);
+      const scrollBottom = window.scrollY + window.innerHeight;
+      const docHeight = document.documentElement.scrollHeight;
+      setIsAtBottom(scrollBottom >= docHeight - 150);
     };
     window.addEventListener("scroll", checkPosition, { passive: true });
     checkPosition();
@@ -32,40 +25,33 @@ const ScrollNavigation = () => {
     isNavigating.current = true;
 
     try {
-      const elements = SECTIONS.map((s) =>
-        document.querySelector(s),
-      ).filter(Boolean) as HTMLElement[];
-
-      if (!elements.length) {
-        currentIdxRef.current = 0;
-        return;
-      }
-
       const scrollY = window.scrollY;
       let closestIdx = 0;
       let closestDist = Infinity;
 
-      elements.forEach((el, i) => {
+      SECTIONS.forEach((id, i) => {
+        const el = document.getElementById(id);
+        if (!el) return;
         const rect = el.getBoundingClientRect();
-        const elTop = rect.top + scrollY;
-        const dist = Math.abs(elTop - scrollY);
+        const dist = Math.abs(rect.top);
         if (dist < closestDist) {
           closestDist = dist;
           closestIdx = i;
         }
       });
 
-      currentIdxRef.current = closestIdx;
-      const nextIdx = (currentIdxRef.current + 1) % elements.length;
-      elements[nextIdx].scrollIntoView({ behavior: "smooth", block: "start" });
-      currentIdxRef.current = nextIdx;
-      setIsAtBottom(nextIdx === elements.length - 1);
+      const nextIdx = (closestIdx + 1) % SECTIONS.length;
+      const targetEl = document.getElementById(SECTIONS[nextIdx]);
+      if (targetEl) {
+        const top = targetEl.getBoundingClientRect().top + scrollY - HEADER_OFFSET;
+        window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+      }
     } catch {
-      currentIdxRef.current = 0;
+      // ignore
     } finally {
       setTimeout(() => {
         isNavigating.current = false;
-      }, 400);
+      }, 800);
     }
   }, []);
 
