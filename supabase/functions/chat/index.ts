@@ -1,3 +1,9 @@
+import { createClient } from "jsr:@supabase/supabase-js@2";
+
+const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+const supabase = createClient(supabaseUrl, supabaseKey);
+
 function getCorsHeaders(req: Request) {
   const origin = req.headers.get("origin") || "";
   return {
@@ -103,15 +109,34 @@ const cache = new Map<string, { reply: string; timestamp: number }>();
 const CACHE_TTL = 10 * 60 * 1000;
 const RATE_LIMIT_REQUESTS = 20;
 const RATE_LIMIT_WINDOW = 60_000;
-const requestTimestamps: number[] = [];
 
-function checkRateLimit(): boolean {
-  const now = Date.now();
-  for (let i = requestTimestamps.length - 1; i >= 0; i--) {
-    if (now - requestTimestamps[i] > RATE_LIMIT_WINDOW) requestTimestamps.splice(i, 1);
+async function checkRateLimit(ip: string): Promise<boolean> {
+  const cutoff = new Date(Date.now() - RATE_LIMIT_WINDOW).toISOString();
+
+  const { error } = await supabase.from("rate_limits").insert({
+    ip_address: ip,
+    created_at: new Date().toISOString(),
+  });
+  if (error) {
+    console.error("rate_limits insert error", error);
+    return true;
   }
-  if (requestTimestamps.length >= RATE_LIMIT_REQUESTS) return false;
-  requestTimestamps.push(now);
+
+  const { count } = await supabase
+    .from("rate_limits")
+    .select("*", { count: "exact", head: true })
+    .eq("ip_address", ip)
+    .gte("created_at", cutoff);
+
+  if (count && count > RATE_LIMIT_REQUESTS) return false;
+
+  if (Math.random() < 0.05) {
+    await supabase
+      .from("rate_limits")
+      .delete()
+      .lt("created_at", new Date(Date.now() - RATE_LIMIT_WINDOW * 2).toISOString());
+  }
+
   return true;
 }
 
@@ -138,10 +163,18 @@ Deno.serve(async (req) => {
       }
     }
 
-    if (!checkRateLimit()) {
+    const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+    if (!(await checkRateLimit(ip))) {
       return new Response(
         JSON.stringify({ reply: `Aguarde um momento e tente novamente. Ou fale direto no WhatsApp: ${WHATSAPP} 📲` }),
-        { headers: { ...cors, "Content-Type": "application/json" } }
+        {
+          status: 429,
+          headers: {
+            ...cors,
+            "Content-Type": "application/json",
+            "Retry-After": "60",
+          },
+        }
       );
     }
 
