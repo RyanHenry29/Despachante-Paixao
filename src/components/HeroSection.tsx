@@ -93,7 +93,10 @@ const HeroSection = ({ onScrollToForm }: HeroSectionProps) => {
       ([entry]) => {
         if (!isMounted) return;
         if (entry.isIntersecting) {
-          if (video.paused) play();
+          if (video.paused) {
+            video.currentTime = 0;
+            play();
+          }
         } else {
           video.pause();
         }
