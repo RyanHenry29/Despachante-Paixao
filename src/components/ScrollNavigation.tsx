@@ -7,13 +7,21 @@ const HEADER_OFFSET = 72;
 
 const ScrollNavigation = () => {
   const [isAtBottom, setIsAtBottom] = useState(false);
+  const isAtBottomRef = useRef(false);
   const isNavigating = useRef(false);
 
   useEffect(() => {
     const checkPosition = () => {
       const scrollBottom = window.scrollY + window.innerHeight;
       const docHeight = document.documentElement.scrollHeight;
-      setIsAtBottom(scrollBottom >= docHeight - 150);
+      const nearBottom = scrollBottom >= docHeight - 200;
+      const footer = document.getElementById("footer");
+      const footerVisible = footer
+        ? footer.getBoundingClientRect().top < window.innerHeight
+        : false;
+      const atBottom = nearBottom && footerVisible;
+      isAtBottomRef.current = atBottom;
+      setIsAtBottom(atBottom);
     };
     window.addEventListener("scroll", checkPosition, { passive: true });
     checkPosition();
@@ -25,6 +33,11 @@ const ScrollNavigation = () => {
     isNavigating.current = true;
 
     try {
+      if (isAtBottomRef.current) {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        return;
+      }
+
       const scrollY = window.scrollY;
       let closestIdx = 0;
       let closestDist = Infinity;
@@ -32,8 +45,7 @@ const ScrollNavigation = () => {
       SECTIONS.forEach((id, i) => {
         const el = document.getElementById(id);
         if (!el) return;
-        const rect = el.getBoundingClientRect();
-        const dist = Math.abs(rect.top);
+        const dist = Math.abs(el.getBoundingClientRect().top);
         if (dist < closestDist) {
           closestDist = dist;
           closestIdx = i;

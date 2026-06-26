@@ -29,7 +29,7 @@ const services = [
   { icon: Stamp, label: "Emplacamento" },
 ];
 
-const HERO_VIDEO_CSS = `
+const HERO_VIDEO_ASSETS = `
 #hero video::-webkit-media-controls { display: none !important; }
 #hero video::-webkit-media-controls-panel { display: none !important; }
 #hero video::-webkit-media-controls-play-button { display: none !important; }
@@ -38,6 +38,8 @@ const HERO_VIDEO_CSS = `
 #hero video::-internal-media-controls-overlay-cast-button { display: none !important; }
 `;
 
+const POSTER_BLUE = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";
+
 const HeroSection = ({ onScrollToForm }: HeroSectionProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const sectionRef = useRef<HTMLElement>(null);
@@ -45,9 +47,19 @@ const HeroSection = ({ onScrollToForm }: HeroSectionProps) => {
 
   useInsertionEffect(() => {
     const style = document.createElement("style");
-    style.textContent = HERO_VIDEO_CSS;
+    style.textContent = HERO_VIDEO_ASSETS;
     document.head.appendChild(style);
-    return () => style.remove();
+
+    const preload = document.createElement("link");
+    preload.rel = "preload";
+    preload.as = "video";
+    preload.href = "/hero-bg.mp4";
+    document.head.appendChild(preload);
+
+    return () => {
+      style.remove();
+      preload.remove();
+    };
   }, []);
 
   useEffect(() => {
@@ -56,29 +68,32 @@ const HeroSection = ({ onScrollToForm }: HeroSectionProps) => {
     if (!section || !video) return;
 
     let isMounted = true;
+    let retryTimer: ReturnType<typeof setInterval>;
 
-    const tryPlay = () => {
+    const play = () => {
       if (!isMounted) return;
       video.play().catch(() => {});
     };
 
+    video.src = "/hero-bg.mp4";
     video.load();
+    play();
 
-    const onCanPlay = () => {
-      if (isMounted) tryPlay();
-    };
+    video.addEventListener("canplay", play, { once: true });
+    video.addEventListener("loadedmetadata", play, { once: true });
 
-    if (video.readyState >= 2) {
-      tryPlay();
-    } else {
-      video.addEventListener("canplay", onCanPlay, { once: true });
-    }
+    retryTimer = setInterval(() => {
+      if (!isMounted) { clearInterval(retryTimer); return; }
+      if (video.readyState >= 2 && video.paused) play();
+    }, 200);
+
+    setTimeout(() => { clearInterval(retryTimer); }, 6000);
 
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (!isMounted) return;
         if (entry.isIntersecting) {
-          if (video.paused) tryPlay();
+          if (video.paused) play();
         } else {
           video.pause();
         }
@@ -89,9 +104,11 @@ const HeroSection = ({ onScrollToForm }: HeroSectionProps) => {
     observer.observe(section);
     return () => {
       isMounted = false;
+      clearInterval(retryTimer);
       observer.disconnect();
-      video.removeEventListener("canplay", onCanPlay);
       video.pause();
+      video.removeAttribute("src");
+      video.load();
     };
   }, []);
 
@@ -112,20 +129,16 @@ const HeroSection = ({ onScrollToForm }: HeroSectionProps) => {
         controlsList="noplaybutton nodownload noremoteplayback"
         disablePictureInPicture
         disableRemotePlayback
+        poster={POSTER_BLUE}
         onEnded={(e) => {
           const v = e.target as HTMLVideoElement;
           v.currentTime = v.duration - 0.05;
         }}
         className="absolute inset-0 w-full h-full object-cover z-[1]"
         style={{ background: "linear-gradient(135deg, #0B1D3D, #1A3668)" }}
-      >
-        <source src="/hero-bg.mp4" type="video/mp4" />
-      </video>
+      />
 
-      {/* Touch interceptor for iOS (prevents native controls) */}
-      <div className="absolute inset-0 z-[1.5]" />
-
-      {/* Dark overlay for readability */}
+      {/* Dark overlay for readability + touch interception (prevents iOS native controls) */}
       <div className="absolute inset-0 bg-[#0B1D3D]/80 z-[2]" />
 
       <div className="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16 w-full relative z-[3] overflow-hidden py-8 sm:py-12">
