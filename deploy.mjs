@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 // Deploy script — lê secrets de variáveis de ambiente, nunca hardcoded
-// Uso: $env:SUPABASE_TOKEN="sbp_..."; $env:GEMINI_KEY="..."; $env:PLACES_KEY="..."; node deploy.mjs
+// Uso: $env:SUPABASE_TOKEN="sbp_..."; $env:GROQ_KEY="..."; $env:PLACES_KEY="..."; node deploy.mjs
 
 const TOKEN = process.env.SUPABASE_TOKEN;
-const GEMINI_KEY = process.env.GEMINI_KEY;
+const GROQ_KEY = process.env.GROQ_KEY;
 const PLACES_KEY = process.env.PLACES_KEY;
 const PROJECT_REF = process.env.PROJECT_REF;
 const API = 'https://api.supabase.com/v1';
@@ -35,7 +35,7 @@ async function main() {
 
   // 2. Set secrets (if keys provided)
   const secrets = [];
-  if (GEMINI_KEY) secrets.push({ name: 'DENO_GEMINI_API_KEY', value: GEMINI_KEY });
+  if (GROQ_KEY) secrets.push({ name: 'DENO_GROQ_API_KEY', value: GROQ_KEY });
   if (PLACES_KEY) secrets.push({ name: 'DENO_GOOGLE_PLACES_API_KEY', value: PLACES_KEY });
   
   if (secrets.length > 0) {
