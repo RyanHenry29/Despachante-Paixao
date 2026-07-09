@@ -40,6 +40,10 @@ export const INTENT_MAP: IntentMapEntry[] = [
   { keywords: ["pcd", "isenção", "deficiência", "icms", "ipva pcd"], titlePrefixes: ["pcd"] },
   { keywords: ["leilão", "arrematado", "nota de leilão", "regularizar leilão"], titlePrefixes: ["leilao"] },
   { keywords: ["bloqueio", "renajud", "administrativo", "judicial", "falta de transferência"], titlePrefixes: ["bloqueios"] },
+  { keywords: ["ipva", "imposto", "alíquota", "isenção ipva", "valor venal"], titlePrefixes: ["ipva"] },
+  { keywords: ["horário", "atende", "endereço", "whatsapp", "contato", "forma de pagamento", "pix", "onde fica"], titlePrefixes: ["atendimento"] },
+  { keywords: ["2ª via", "segunda via", "lacre", "placa perdida", "placa danificada", "restrição", "regularizar", "regularização", "apreendido", "guinchado", "pátio", "live"], titlePrefixes: ["regularizacao"] },
+  { keywords: ["carreira", "vaga", "emprego", "trabalhar conosco", "currículo"], titlePrefixes: ["servicos"] },
 ];
 
 /**

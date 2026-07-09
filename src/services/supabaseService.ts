@@ -17,7 +17,7 @@ export async function searchKnowledge(query: string): Promise<string> {
   if (detectedPrefixes.size > 0) {
     try {
       const orCondition = Array.from(detectedPrefixes)
-        .map(p => `category.like.${p}%`)
+        .map(p => `title.like.${p}%`)
         .join(",");
 
       const { data, error } = await supabase
