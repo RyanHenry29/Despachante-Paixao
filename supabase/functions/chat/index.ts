@@ -65,12 +65,18 @@ Conservado: Detran desvincula débitos anteriores. Docs: Nota de Arrematação, 
 Sucata inservível: baixa definitiva. Só desmontes credenciados. NÃO circula.
 Sinistro média monta: veículo bloqueado até reparo + CSV + vistoria. Só regulariza com laudo aprovado.
 
+═══ VEÍCULO APREENDIDO/GUINCHADO (PÁTIO) ═══
+Novidade 2026: LIVE (Liberação Instantânea de Veículos) — liberação pode ser solicitada pelo celular assim que o veículo chega ao pátio, direto pelo site/app do Detran-SP, sem precisar ir pessoalmente, desde que quite os débitos.
+Taxas 2026: Liberação R$ 19,17 + Estadia R$ 38,90/dia + Reboque R$ 388,96 — além do licenciamento/IPVA/multas em aberto.
+
 ═══ DESBUROCRATIZAÇÃO 2026 ═══
 NÃO precisa Laudo: 2ª via CRV, troca Placa Mercosul, cancelamento venda.
 PRECISA Laudo CSV: Transferência, mudança cidade/estado, alteração características.
 
-═══ IPVA SP ═══
-4% carros passeio, 2% motos/ônibus, 1,5% caminhões, 1% locadoras. Isenção: >20 anos, táxi, PCD, motos até 180cc.
+═══ IPVA SP 2026 ═══
+4% carros passeio, 2% motos/ônibus, 1,5% caminhões, 1% locadoras.
+Isenção: >20 anos de fabricação, táxi/mototáxi, transporte escolar, motos até 180cc, veículos híbridos/hidrogênio (até R$ 250 mil), veículos oficiais, uso religioso/social.
+PCD: isenção total até R$ 70 mil de valor venal; acima disso, isenção parcial.
 
 ═══ MULTAS CTB 2026 ═══
 Leve: R$ 88,38 (3pts) | Média: R$ 130,16 (4pts) | Grave: R$ 195,23 (5pts) | Gravíssima: R$ 293,47 (7pts)
