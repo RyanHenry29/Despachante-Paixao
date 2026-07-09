@@ -21,16 +21,28 @@ async function api(path, options = {}) {
 
 async function main() {
   // 1. Deploy Edge Functions
+  // Usa o endpoint /functions/deploy?slug=X, que cria OU atualiza a function
+  // existente (multipart/form-data). O endpoint antigo POST /functions só
+  // servia para criar functions novas e falhava com "Duplicated function slug"
+  // ao tentar atualizar uma já existente.
   const fs = await import('fs');
   for (const name of ['chat', 'reviews']) {
     console.log(`\n=== Deploying ${name} ===`);
     const code = fs.readFileSync(`supabase/functions/${name}/index.ts`, 'utf8');
-    const r = await api(`/projects/${PROJECT_REF}/functions`, {
+
+    const form = new FormData();
+    form.append('metadata', JSON.stringify({ entrypoint_path: 'index.ts', name, verify_jwt: false }));
+    form.append('file', new Blob([code], { type: 'application/typescript' }), 'index.ts');
+
+    const res = await fetch(`${API}/projects/${PROJECT_REF}/functions/deploy?slug=${name}`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ slug: name, name, verify_jwt: false, entrypoint_path: 'index.ts', body: code }),
+      headers: { 'Authorization': `Bearer ${TOKEN}` },
+      body: form,
     });
-    console.log(`${name}:`, r.status, r.data?.id ? 'OK' : JSON.stringify(r.data).substring(0, 100));
+    const text = await res.text();
+    let data;
+    try { data = JSON.parse(text); } catch { data = text; }
+    console.log(`${name}:`, res.status, res.status === 200 || res.status === 201 ? 'OK' : JSON.stringify(data).substring(0, 200));
   }
 
   // 2. Set secrets (if keys provided)
