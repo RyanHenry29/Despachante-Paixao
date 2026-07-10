@@ -12,6 +12,7 @@ const Footer = () => {
             <img 
               src={logo} 
               alt="Despachante Paixão" 
+              loading="lazy"
               className="h-20 mb-4"
             />
               <p className="text-white/60 mb-6 leading-relaxed text-[clamp(0.75rem,0.95vw,0.875rem)]">
