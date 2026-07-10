@@ -1,16 +1,22 @@
 import { useState, useEffect } from "react";
 import { Cookie } from "lucide-react";
+import { loadGoogleAnalytics } from "@/services/analyticsService";
 
 const CookieConsent = () => {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     const consent = localStorage.getItem("cookie-consent");
-    if (!consent) setVisible(true);
+    if (!consent) {
+      setVisible(true);
+    } else if (consent === "accepted") {
+      loadGoogleAnalytics();
+    }
   }, []);
 
   const accept = () => {
     localStorage.setItem("cookie-consent", "accepted");
+    loadGoogleAnalytics();
     setVisible(false);
   };
 
